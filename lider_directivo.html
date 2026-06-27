@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:transparent;color:#222}
+.wrap{max-width:1080px;margin:0 auto;padding:1rem 1.2rem 4rem}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #ebebeb}
+.header h2{font-size:32px;font-weight:300;color:#222;letter-spacing:0.5px}
+.header img{height:30px;display:none}
+
+.next,.download{font-family:inherit;font-size:15px;font-weight:500;padding:12px 32px;border:none;border-radius:999px;background:#5fb69a;color:#fff;cursor:pointer;transition:opacity 0.2s}
+.next:hover,.download:hover{opacity:0.88}
+.btnrow{margin-top:24px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+.page{display:none;margin-top:40px;padding-top:24px;border-top:1px solid #ebebeb}
+.page.show{display:block}
+
+/* tabla página 1 */
+.t1{width:100%;border-collapse:collapse;table-layout:fixed}
+.t1 th{background:#5fb69a;color:#fff;font-weight:700;padding:11px;border:1px solid #fff;font-size:13.5px;text-align:left}
+.t1 th.pcol{width:11.5%;text-align:center}
+.t1 td{border:1px solid #e0e0e0;padding:13px 15px;font-size:14px;color:#444;line-height:1.4;vertical-align:middle}
+.t1 td b{color:#2c3e50}
+.t1 td.pcell{text-align:center;white-space:nowrap}
+.pin{width:56px;border:1px solid #d8d8d8;border-radius:7px;padding:8px;text-align:center;font-family:inherit;font-size:15px;color:#2c3e50}
+.pin:focus{outline:none;border-color:#5fb69a}
+.pct-sign{color:#999;margin-left:4px}
+.t1 tr.avg td{background:#5fb69a;color:#fff;font-weight:700;font-size:13.5px}
+.t1 tr.avg td.avgval{text-align:center;font-size:16px}
+
+/* tabla página 2 */
+.tq{width:100%;border-collapse:collapse;table-layout:fixed}
+.tq th{background:#5fb69a;color:#fff;font-weight:700;text-align:left;padding:11px 15px;border:1px solid #fff;font-size:13.5px}
+.tq th.qh{width:30%}
+.tq td{border:1px solid #cfcfcf;padding:12px;vertical-align:middle}
+.tq td.q{width:30%;text-align:center;font-weight:600;color:#2c3e50;font-size:14px;background:#fafafa;line-height:1.4}
+.tq textarea{width:100%;min-height:92px;border:none;resize:vertical;font-family:inherit;font-size:14px;line-height:1.5;background:transparent}
+.tq textarea:focus{outline:none}
+
+.footer-note{font-size:12px;color:#bbb;text-align:center;margin-top:34px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h2>Líder o Directivo/a</h2>
+    <img id="logoImg" src="images/logo_innerkey.png" alt="innerkey">
+  </div>
+
+  <!-- PÁGINA 1 -->
+  <div id="p1">
+    <table class="t1">
+      <thead><tr><th>Líder</th><th>Directivo</th><th class="pcol">Líder</th><th class="pcol">Directivo</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Mi prioridad es <b>inspirar e influir</b>.</td>
+          <td>Mi prioridad es <b>hacer que se haga</b>.</td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="l0" oninput="onPct(this,'l',0)"><span class="pct-sign">%</span></td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="d0" oninput="onPct(this,'d',0)"><span class="pct-sign">%</span></td>
+        </tr>
+        <tr>
+          <td>Mi prioridad es <b>emprender</b>.</td>
+          <td>Mi prioridad es <b>resolver</b>.</td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="l1" oninput="onPct(this,'l',1)"><span class="pct-sign">%</span></td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="d1" oninput="onPct(this,'d',1)"><span class="pct-sign">%</span></td>
+        </tr>
+        <tr>
+          <td>Mi prioridad es <b>crecer</b>.</td>
+          <td>Mi prioridad es <b>hacer un buen trabajo</b>.</td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="l2" oninput="onPct(this,'l',2)"><span class="pct-sign">%</span></td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="d2" oninput="onPct(this,'d',2)"><span class="pct-sign">%</span></td>
+        </tr>
+        <tr>
+          <td>Mi prioridad es la <b>estrategia a medio y largo plazo</b>.</td>
+          <td>Mi prioridad es <b>asegurar los objetivos a corto plazo</b>.</td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="l3" oninput="onPct(this,'l',3)"><span class="pct-sign">%</span></td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="d3" oninput="onPct(this,'d',3)"><span class="pct-sign">%</span></td>
+        </tr>
+        <tr>
+          <td>Mi prioridad es <b>contagiar con pasión</b>.</td>
+          <td>Mi prioridad es <b>convencer con la razón</b>.</td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="l4" oninput="onPct(this,'l',4)"><span class="pct-sign">%</span></td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="d4" oninput="onPct(this,'d',4)"><span class="pct-sign">%</span></td>
+        </tr>
+        <tr>
+          <td>Mi prioridad es <b>marcar rumbos ambiciosos, aceptando riesgos</b>.</td>
+          <td>Mi prioridad es <b>ejecutar rumbos marcados, minimizando riesgos</b>.</td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="l5" oninput="onPct(this,'l',5)"><span class="pct-sign">%</span></td>
+          <td class="pcell"><input class="pin" inputmode="numeric" maxlength="3" id="d5" oninput="onPct(this,'d',5)"><span class="pct-sign">%</span></td>
+        </tr>
+        <tr class="avg">
+          <td colspan="2">PROMEDIO ~</td>
+          <td class="avgval" id="avgL">—</td>
+          <td class="avgval" id="avgD">—</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="btnrow">
+      <button class="next" onclick="calc()">Calcular promedio</button>
+      <button class="next" onclick="goP2()">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PÁGINA 2 -->
+  <div class="page" id="p2">
+    <table class="tq">
+      <thead><tr><th class="qh">Pregunta</th><th>Reflexión</th></tr></thead>
+      <tbody>
+        <tr><td class="q">¿De qué te estás dando cuenta?</td><td><textarea oninput="refl[0]=this.value"></textarea></td></tr>
+        <tr><td class="q">¿Cuál es tu propósito más profundo para ser líder?</td><td><textarea oninput="refl[1]=this.value"></textarea></td></tr>
+        <tr><td class="q">¿Cuál es tu mayor sabotaje interior para ser el/la líder que deseas?</td><td><textarea oninput="refl[2]=this.value"></textarea></td></tr>
+        <tr><td class="q">¿Qué seguridad has de sacrificar para LIDERAR con mayúsculas?</td><td><textarea oninput="refl[3]=this.value"></textarea></td></tr>
+        <tr><td class="q">¿Qué acciones concretas vas a poner en marcha?</td><td><textarea oninput="refl[4]=this.value"></textarea></td></tr>
+      </tbody>
+    </table>
+    <div class="btnrow"><button class="download" onclick="exportPDF()">Descargar PDF</button></div>
+  </div>
+
+  <p class="footer-note">borjaarano.com</p>
+</div>
+
+<script>
+const lider=['','','','','',''];
+const directivo=['','','','','',''];
+const refl=['','','','',''];
+const LST=[
+  ['Mi prioridad es inspirar e influir.','Mi prioridad es hacer que se haga.'],
+  ['Mi prioridad es emprender.','Mi prioridad es resolver.'],
+  ['Mi prioridad es crecer.','Mi prioridad es hacer un buen trabajo.'],
+  ['Mi prioridad es la estrategia a medio y largo plazo.','Mi prioridad es asegurar los objetivos a corto plazo.'],
+  ['Mi prioridad es contagiar con pasión.','Mi prioridad es convencer con la razón.'],
+  ['Mi prioridad es marcar rumbos ambiciosos, aceptando riesgos.','Mi prioridad es ejecutar rumbos marcados, minimizando riesgos.']
+];
+const QST=[
+  '¿De qué te estás dando cuenta?',
+  '¿Cuál es tu propósito más profundo para ser líder?',
+  '¿Cuál es tu mayor sabotaje interior para ser el/la líder que deseas?',
+  '¿Qué seguridad has de sacrificar para LIDERAR con mayúsculas?',
+  '¿Qué acciones concretas vas a poner en marcha?'
+];
+
+function onPct(el,which,i){
+  let v=el.value.replace(/[^0-9]/g,'');
+  if(v!==''){let n=parseInt(v);if(n>100)n=100;v=String(n);}
+  el.value=v;
+  if(which==='l')lider[i]=v;else directivo[i]=v;
+}
+function avgOf(arr){let s=0,n=0;arr.forEach(x=>{if(x!==''&&x!=null){s+=parseInt(x);n++;}});return n?Math.round(s/n):0;}
+function calc(){
+  document.getElementById('avgL').textContent=avgOf(lider)+' %';
+  document.getElementById('avgD').textContent=avgOf(directivo)+' %';
+}
+function goP2(){
+  const p=document.getElementById('p2');p.classList.add('show');
+  setTimeout(()=>p.scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+
+// ---------- LOGO ----------
+let logoData=null,logoRatio=36/16;
+function loadLogo(){
+  const img=document.getElementById('logoImg');
+  function ok(){img.style.display='block';try{logoRatio=img.naturalWidth/img.naturalHeight;const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/png');}catch(e){}}
+  if(img.complete&&img.naturalWidth>0)ok();else{img.onload=ok;}
+}
+
+// ---------- PDF ----------
+function common(doc,PW,PH){
+  doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(95,182,154);
+  doc.text('Líder o Directivo/a',12,21);
+  if(logoData){try{const lw=13*logoRatio;doc.addImage(logoData,'PNG',PW-12-lw,9,lw,13);}catch(e){}}
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(95,182,154);
+  doc.text('www.inner-key.com',PW/2,PH-9,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(150,150,150);
+  doc.text('Copyright de Innerkey Escuela Transpersonal de Coaching. No se permite su duplicación, transmisión ni reproducción, total o parcial.',PW/2,PH-6,{align:'center'});
+}
+
+function drawP1(doc){
+  const PW=297,PH=210,M=12;common(doc,PW,PH);
+  const wp=33,ws=(PW-2*M-2*wp)/2;
+  const cols=[{x:M,w:ws},{x:M+ws,w:ws},{x:M+2*ws,w:wp},{x:M+2*ws+wp,w:wp}];
+  const top=30,hh=11;
+  const heads=['Líder','Directivo','Líder','Directivo'];
+  doc.setFillColor(95,182,154);cols.forEach(c=>doc.rect(c.x,top,c.w,hh,'F'));
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text(heads[0],cols[0].x+4,top+7);doc.text(heads[1],cols[1].x+4,top+7);
+  doc.text(heads[2],cols[2].x+cols[2].w/2,top+7,{align:'center'});
+  doc.text(heads[3],cols[3].x+cols[3].w/2,top+7,{align:'center'});
+  let y=top+hh;const lineH=4.4,pad=3.2;
+  LST.forEach((p,i)=>{
+    const a=doc.splitTextToSize(p[0],cols[0].w-2*pad);
+    const b=doc.splitTextToSize(p[1],cols[1].w-2*pad);
+    const rowH=Math.max(a.length,b.length)*lineH+2*pad+2;
+    doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);cols.forEach(c=>doc.rect(c.x,y,c.w,rowH));
+    doc.setTextColor(60,60,60);doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+    let ty=y+pad+2.5;a.forEach(l=>{doc.text(l,cols[0].x+pad,ty);ty+=lineH;});
+    ty=y+pad+2.5;b.forEach(l=>{doc.text(l,cols[1].x+pad,ty);ty+=lineH;});
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(11);
+    const lv=lider[i]!==''?lider[i]+' %':'%';
+    const dv=directivo[i]!==''?directivo[i]+' %':'%';
+    doc.text(lv,cols[2].x+cols[2].w/2,y+rowH/2+1.5,{align:'center'});
+    doc.text(dv,cols[3].x+cols[3].w/2,y+rowH/2+1.5,{align:'center'});
+    y+=rowH;
+  });
+  // promedio
+  const ah=12;
+  doc.setFillColor(95,182,154);cols.forEach(c=>doc.rect(c.x,y,c.w,ah,'F'));
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('PROMEDIO ~',cols[0].x+4,y+ah/2+1.5);
+  doc.setFontSize(11);
+  doc.text(avgOf(lider)+' %',cols[2].x+cols[2].w/2,y+ah/2+1.5,{align:'center'});
+  doc.text(avgOf(directivo)+' %',cols[3].x+cols[3].w/2,y+ah/2+1.5,{align:'center'});
+}
+
+function drawP2(doc){
+  const PW=297,PH=210,M=12;common(doc,PW,PH);
+  const wq=80,wr=PW-2*M-wq;
+  const cols=[{x:M,w:wq},{x:M+wq,w:wr}];
+  const top=30,hh=11;
+  doc.setFillColor(95,182,154);cols.forEach(c=>doc.rect(c.x,top,c.w,hh,'F'));
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('Pregunta',cols[0].x+4,top+7);doc.text('Reflexión',cols[1].x+4,top+7);
+  let y=top+hh;const lineH=4.6,pad=3.4;
+  const avail=(PH-14-y);
+  QST.forEach((q,i)=>{
+    const ql=doc.splitTextToSize(q,cols[0].w-2*pad);
+    const rl=doc.splitTextToSize(refl[i]||'',cols[1].w-2*pad);
+    const need=Math.max(ql.length,rl.length)*lineH+2*pad;
+    const rowH=Math.max(need,avail/5);
+    doc.setDrawColor(120,120,120);doc.setLineWidth(0.3);cols.forEach(c=>doc.rect(c.x,y,c.w,rowH));
+    doc.setFillColor(250,250,250);doc.rect(cols[0].x,y,cols[0].w,rowH,'F');doc.rect(cols[0].x,y,cols[0].w,rowH,'S');
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(10);
+    let qy=y+rowH/2-((ql.length-1)*2.4);ql.forEach(l=>{doc.text(l,cols[0].x+cols[0].w/2,qy,{align:'center'});qy+=4.8;});
+    doc.setTextColor(60,60,60);doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+    let ry=y+pad+2.6;rl.forEach(l=>{doc.text(l,cols[1].x+pad,ry);ry+=lineH;});
+    y+=rowH;
+  });
+}
+
+function exportPDF(){
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    drawP1(doc);
+    doc.addPage('a4','landscape');drawP2(doc);
+    doc.save('lider-o-directivo.pdf');
+  }catch(err){console.error(err);}
+}
+
+loadLogo();
+</script>
+</body>
+</html>

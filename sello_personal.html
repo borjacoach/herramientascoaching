@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:transparent;color:#222}
+.wrap{max-width:960px;margin:0 auto;padding:1.5rem 1.5rem 4rem}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #ebebeb}
+.header h2{font-size:30px;font-weight:300;color:#222}
+.header img{height:30px;display:none}
+
+.grid-wrap{position:relative;border:2px solid #5fb69a;border-radius:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;min-height:480px}
+.quad{padding:14px 18px;display:flex;flex-direction:column}
+.quad:nth-child(1){border-right:1px solid #e0e0e0;border-bottom:1px solid #e0e0e0;padding-right:90px}
+.quad:nth-child(2){border-bottom:1px solid #e0e0e0;padding-left:90px}
+.quad:nth-child(3){border-right:1px solid #e0e0e0;padding-right:90px}
+.quad:nth-child(4){padding-left:90px}
+.quad:nth-child(2) textarea,.quad:nth-child(4) textarea{text-align:right}
+.qlabel{font-size:13.5px;color:#555;line-height:1.3;margin-bottom:8px}
+.qlabel b{font-size:15px;color:#2c3e50;font-weight:700}
+.qlabel.right{text-align:right}
+.quad textarea{flex:1;width:100%;border:none;resize:none;font-family:inherit;font-size:14px;color:#333;line-height:1.5;background:transparent}
+.quad textarea:focus{outline:none}
+
+.stamp{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-6deg);width:140px;height:140px;border-radius:50%;border:3px solid #c8c8c8;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.92);box-shadow:0 0 0 6px rgba(255,255,255,0.92);pointer-events:none;z-index:2}
+.stamp-inner{width:116px;height:116px;border-radius:50%;border:2px solid #c8c8c8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.stamp-inner .s1{font-family:'Georgia',serif;font-size:26px;color:#aaa;line-height:1;letter-spacing:1px}
+.stamp-inner .s2{font-family:'Georgia',serif;font-size:19px;color:#aaa;line-height:1.1;letter-spacing:0.5px}
+.stamp-inner .s3{font-size:10px;color:#bbb;margin-top:4px;letter-spacing:1.5px}
+
+.next{font-family:inherit;font-size:15px;font-weight:500;padding:12px 32px;border:none;border-radius:999px;background:#5fb69a;color:#fff;cursor:pointer;transition:opacity 0.2s}
+.download{font-family:inherit;font-size:15px;font-weight:500;padding:12px 32px;border:1.5px solid #5fb69a;border-radius:999px;background:#fff;color:#5fb69a;cursor:pointer;transition:opacity 0.2s}
+.next:hover,.download:hover{opacity:0.85}
+.btnrow{margin-top:28px;display:flex;gap:12px;flex-wrap:wrap}
+.page{display:none;margin-top:40px;padding-top:24px;border-top:1px solid #ebebeb}
+.page.show{display:block}
+.tq{width:100%;border-collapse:collapse;table-layout:fixed}
+.tq th{background:#5fb69a;color:#fff;font-weight:700;text-align:left;padding:12px 16px;border:1px solid #fff;font-size:14px}
+.tq th.qh{width:30%}
+.tq td{border:1px solid #cfcfcf;padding:14px;vertical-align:middle}
+.tq td.q{width:30%;text-align:center;font-weight:600;color:#2c3e50;font-size:14px;background:#fafafa;line-height:1.4}
+.tq textarea{width:100%;min-height:100px;border:none;resize:vertical;font-family:inherit;font-size:14px;line-height:1.5;background:transparent}
+.tq textarea:focus{outline:none}
+.footer-note{font-size:12px;color:#bbb;text-align:center;margin-top:40px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h2>Mi sello personal</h2>
+    <img id="logoImg" src="images/logo_innerkey.png" alt="innerkey">
+  </div>
+
+  <div class="grid-wrap">
+    <div class="grid">
+      <div class="quad">
+        <div class="qlabel"><b>YO</b> ¿Qué habilidades diferenciadoras tengo?</div>
+        <textarea oninput="vals[0]=this.value"></textarea>
+      </div>
+      <div class="quad">
+        <div class="qlabel right">¿Qué valor diferencial les aporto? <b>CÚPULA</b></div>
+        <textarea oninput="vals[1]=this.value"></textarea>
+      </div>
+      <div class="quad">
+        <div class="qlabel"><b>EQUIPO</b> ¿Qué valor diferencial les aporto?</div>
+        <textarea oninput="vals[2]=this.value"></textarea>
+      </div>
+      <div class="quad">
+        <div class="qlabel right">¿Qué valor diferencial les aporto? <b>CLIENTES</b></div>
+        <textarea oninput="vals[3]=this.value"></textarea>
+      </div>
+    </div>
+    <div class="stamp"><div class="stamp-inner"><span class="s1">sello</span><span class="s2">personal</span><span class="s3">100% original</span></div></div>
+  </div>
+
+  <div class="btnrow"><button class="next" onclick="goP2()">Siguiente</button></div>
+
+  <div class="page" id="p2">
+    <table class="tq">
+      <thead><tr><th class="qh">Pregunta</th><th>Reflexión</th></tr></thead>
+      <tbody id="p2body"></tbody>
+    </table>
+    <div class="btnrow"><button class="download" onclick="exportPDF()">Descargar PDF</button></div>
+  </div>
+  <p class="footer-note">borjaarano.com</p>
+</div>
+
+<script>
+const vals=['','','',''];
+const QST=[
+  '¿Qué parte de ti no estás reflejando en tu sello personal?',
+  '¿Cómo de conscientes son los demás de tu sello personal?',
+  '¿Cuál es el denominador común más característico de tu sello personal?',
+  '¿Qué te impide potenciar mucho más ese denominador común?',
+  '¿Qué impactos clave vas a provocar para sorprender con tu sello personal?'
+];
+const refl=QST.map(()=>'');
+let trows='';QST.forEach((q,i)=>{trows+=`<tr><td class="q">${q}</td><td><textarea oninput="refl[${i}]=this.value"></textarea></td></tr>`;});
+document.getElementById('p2body').innerHTML=trows;
+
+function goP2(){document.getElementById('p2').classList.add('show');setTimeout(()=>document.getElementById('p2').scrollIntoView({behavior:'smooth',block:'start'}),60);}
+
+// LOGO
+let logoData=null,logoRatio=36/16;
+function loadLogo(){const img=document.getElementById('logoImg');function ok(){img.style.display='block';try{logoRatio=img.naturalWidth/img.naturalHeight;const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/png');}catch(e){}}if(img.complete&&img.naturalWidth>0)ok();else img.onload=ok;}
+
+// PDF
+function common(doc,PW,PH){
+  doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(95,182,154);
+  doc.text('Mi sello personal',12,20);
+  if(logoData){try{const lw=13*logoRatio;doc.addImage(logoData,'PNG',PW-12-lw,8,lw,13);}catch(e){}}
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(95,182,154);
+  doc.text('www.inner-key.com',PW/2,PH-9,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(150,150,150);
+  doc.text('Copyright de Innerkey Escuela Transpersonal de Coaching. No se permite su duplicación, transmisión ni reproducción, total o parcial.',PW/2,PH-6,{align:'center'});
+}
+
+function drawP1(doc){
+  const PW=297,PH=210,M=12;common(doc,PW,PH);
+  const bx=M,by=30,bw=PW-2*M,bh=PH-48;
+  const hw=bw/2,hh=bh/2;
+  doc.setDrawColor(95,182,154);doc.setLineWidth(1);doc.rect(bx,by,bw,bh);
+  doc.setDrawColor(210,210,210);doc.setLineWidth(0.3);
+  doc.line(bx+hw,by,bx+hw,by+bh);doc.line(bx,by+hh,bx+bw,by+hh);
+  const labels=[
+    {t:'YO',q:'¿Qué habilidades diferenciadoras tengo?',x:bx+5,y:by+6,al:'left'},
+    {t:'CÚPULA',q:'¿Qué valor diferencial les aporto?',x:bx+bw-5,y:by+6,al:'right'},
+    {t:'EQUIPO',q:'¿Qué valor diferencial les aporto?',x:bx+5,y:by+bh-4,al:'left'},
+    {t:'CLIENTES',q:'¿Qué valor diferencial les aporto?',x:bx+bw-5,y:by+bh-4,al:'right'}
+  ];
+  labels.forEach(l=>{
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(44,62,80);
+    doc.text(l.t,l.x,l.y,{align:l.al});
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(100,100,100);
+    const isRight=l.al==='right';
+    const qx=isRight?l.x:l.x+doc.getTextWidth(l.t)+3;
+    if(l.y<by+20){
+      doc.text(l.q,isRight?l.x-doc.getTextWidth(l.t)-3:qx,l.y,{align:l.al});
+    }else{
+      doc.text(l.q,isRight?l.x-doc.getTextWidth(l.t)-3:qx,l.y,{align:l.al});
+    }
+  });
+  // quadrant text
+  const qpad=6,qlh=4.2,sg=30;
+  const areas=[
+    {x:bx+qpad, y:by+16, w:hw-qpad-sg, h:hh-20, al:'left'},
+    {x:bx+hw+sg, y:by+16, w:hw-qpad-sg, h:hh-20, al:'right'},
+    {x:bx+qpad, y:by+hh+qpad, w:hw-qpad-sg, h:hh-qpad-12, al:'left'},
+    {x:bx+hw+sg, y:by+hh+qpad, w:hw-qpad-sg, h:hh-qpad-12, al:'right'}
+  ];
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(60,60,60);
+  vals.forEach((v,i)=>{
+    if(!v)return;
+    const a=areas[i];
+    const ln=doc.splitTextToSize(v,a.w);
+    let ty=a.y;
+    const tx=a.al==='right'?a.x+a.w:a.x;
+    ln.forEach(l=>{if(ty<a.y+a.h){doc.text(l,tx,ty,{align:a.al});ty+=qlh;}});
+  });
+  // stamp
+  const cx=bx+hw,cy=by+hh,r=22;
+  doc.setDrawColor(190,190,190);doc.setLineWidth(1.2);doc.setFillColor(255,255,255);
+  doc.circle(cx,cy,r+4,'FD');doc.setLineWidth(0.8);doc.circle(cx,cy,r,'S');
+  doc.setFont('times','normal');doc.setFontSize(14);doc.setTextColor(170,170,170);
+  doc.text('sello',cx,cy-3,{align:'center'});
+  doc.setFontSize(11);doc.text('personal',cx,cy+4,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(190,190,190);
+  doc.text('100% original',cx,cy+9,{align:'center'});
+}
+
+function drawP2(doc){
+  const PW=297,PH=210,M=12;common(doc,PW,PH);
+  const wq=80,wr=PW-2*M-wq;
+  const cols=[{x:M,w:wq},{x:M+wq,w:wr}];
+  const top=30,hh=11;
+  doc.setFillColor(95,182,154);cols.forEach(c=>doc.rect(c.x,top,c.w,hh,'F'));
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('Pregunta',cols[0].x+4,top+7);doc.text('Reflexión',cols[1].x+4,top+7);
+  let y=top+hh;const lineH=4.6,pad=3.4,qPad=8,avail=PH-14-y;
+  QST.forEach((q,i)=>{
+    const ql=doc.splitTextToSize(q,cols[0].w-2*qPad);
+    const rl=doc.splitTextToSize(refl[i]||'',cols[1].w-2*pad);
+    const rowH=Math.max(Math.max(ql.length,rl.length)*lineH+2*pad,avail/5);
+    doc.setDrawColor(120,120,120);doc.setLineWidth(0.3);cols.forEach(c=>doc.rect(c.x,y,c.w,rowH));
+    doc.setFillColor(250,250,250);doc.rect(cols[0].x,y,cols[0].w,rowH,'F');doc.rect(cols[0].x,y,cols[0].w,rowH,'S');
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(10);
+    let qy=y+rowH/2-((ql.length-1)*2.4);ql.forEach(l=>{doc.text(l,cols[0].x+cols[0].w/2,qy,{align:'center'});qy+=4.8;});
+    doc.setTextColor(60,60,60);doc.setFont('helvetica','normal');doc.setFontSize(9.5);
+    let ry=y+pad+2.6;rl.forEach(l=>{doc.text(l,cols[1].x+pad,ry);ry+=lineH;});
+    y+=rowH;
+  });
+}
+
+function exportPDF(){
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    drawP1(doc);doc.addPage('a4','landscape');drawP2(doc);
+    doc.save('mi-sello-personal.pdf');
+  }catch(err){console.error(err);}
+}
+
+loadLogo();
+</script>
+</body>
+</html>

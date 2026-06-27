@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:transparent;color:#222}
+.wrap{max-width:720px;margin:0 auto;padding:0.6rem 1rem 1.2rem}
+.header{display:flex;justify-content:center;align-items:center;position:relative;margin-bottom:12px}
+.header h2{font-size:36px;font-weight:300;letter-spacing:0.3px}
+.logo-area{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.logo-area img{height:32px;display:none}
+.logo-text{display:none;flex-direction:column;align-items:flex-end;line-height:1.15}
+.lt-main{font-size:14px}.lt-inner{font-weight:700}.lt-key{font-weight:400;color:#5fb69a}
+.lt-main sup{font-size:7px;color:#aaa}.lt-sub{font-size:7px;color:#aaa;text-align:right;margin-top:1px}
+
+.tabs{display:flex;justify-content:center;gap:0;margin-bottom:18px;border-bottom:1px solid #ebebeb}
+.tab{padding:10px 28px 12px;font-size:14px;font-weight:500;border:none;background:none;color:#717171;cursor:pointer;font-family:inherit;position:relative;transition:color 0.2s}
+.tab::after{content:'';position:absolute;bottom:-1px;left:8px;right:8px;height:2px;background:#5fb69a;border-radius:2px;transform:scaleX(0);transition:transform 0.2s}
+.tab.active{color:#222}
+.tab.active::after{transform:scaleX(1)}
+.tab:hover:not(.active){color:#444}
+
+.temple{position:relative;margin-bottom:16px}
+.roof-svg{display:block;width:100%;margin-bottom:-1px;position:relative;z-index:1}
+.body-box{background:#fff;border:1px solid #ebebeb;border-top:none;border-radius:0 0 12px 12px;overflow:hidden}
+
+.belief-bar{padding:18px 28px;border-bottom:1px solid #ebebeb}
+.belief-input{width:100%;text-align:center;font-size:20px;font-weight:500;font-style:italic;border:none;outline:none;background:transparent;color:#222;font-family:inherit}
+.belief-input::placeholder{color:#ccc;font-weight:400}
+
+.cols{display:flex;gap:8px;padding:10px}
+.col{flex:1;position:relative;background:#fafafa;border:1px solid #ebebeb;border-radius:10px;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;min-height:160px;overflow:hidden}
+.col::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:#5fb69a;opacity:0.4;border-radius:10px 10px 0 0;transition:opacity 0.2s}
+.col:hover{border-color:#ddd;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+.col:hover::before{opacity:0.8}
+.col-body{padding:12px 10px 10px;font-size:12px;line-height:1.5;color:#444;flex:1;overflow:hidden;word-break:break-word}
+.col-body .ph{color:#ccc;font-size:11px}
+.col-remove{position:absolute;top:8px;right:6px;width:20px;height:20px;border-radius:50%;border:none;background:transparent;color:transparent;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;transition:all 0.15s}
+.col:hover .col-remove{color:#bbb;background:rgba(0,0,0,0.04)}
+.col-remove:hover{background:#fee!important;color:#e55!important}
+
+.bottom-bar{display:flex;gap:8px;justify-content:center}
+.bbtn{padding:8px 20px;border-radius:24px;border:1px solid #ddd;background:#fff;color:#444;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:all 0.15s}
+.bbtn:hover{border-color:#222;color:#222}
+.bbtn-dl{background:#5fb69a;color:#fff;border-color:#5fb69a}
+.bbtn-dl:hover{opacity:0.92;border-color:#5fb69a;color:#fff}
+
+#editPop{position:absolute;display:none;z-index:20;background:#fff;border-radius:16px;padding:14px;box-shadow:0 6px 24px rgba(0,0,0,0.12),0 0 0 1px rgba(0,0,0,0.04)}
+#editPop textarea{width:220px;min-height:110px;border:1px solid #ddd;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;resize:vertical;outline:none;line-height:1.5;color:#333}
+#editPop textarea:focus{border-color:#5fb69a;box-shadow:0 0 0 3px rgba(95,182,154,0.1)}
+.ep-hint{font-size:10px;color:#bbb;margin-top:6px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h2>El templo de la creencia</h2>
+    <div class="logo-area">
+      <img id="logoImg" src="images/logo_innerkey.png" alt="Innerkey">
+      <div id="logoText" class="logo-text">
+        <span class="lt-main"><span class="lt-inner">inner</span><span class="lt-key">key</span><sup>®</sup></span>
+        <span class="lt-sub">Escuela Transpersonal<br>de Coaching</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('limit')">Creencia limitante</button>
+    <button class="tab" onclick="switchTab('impulse')">Creencia impulsora</button>
+  </div>
+
+  <div class="temple" id="tw">
+    <svg class="roof-svg" viewBox="0 0 500 55" preserveAspectRatio="xMidYMax meet">
+      <polygon points="250,4 498,53 2,53" fill="#fff" stroke="#ddd" stroke-width="1.2"/>
+    </svg>
+    <div class="body-box">
+      <div class="belief-bar">
+        <input class="belief-input" id="beliefInput" type="text" placeholder="Escribe aquí la creencia..." maxlength="80">
+      </div>
+      <div class="cols" id="colsEl"></div>
+    </div>
+    <div id="editPop">
+      <textarea id="editTA" placeholder="¿Qué sucedió?"></textarea>
+      <div class="ep-hint">Clic fuera para guardar</div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="bbtn" onclick="addCol()">+ Añadir pilar</button>
+    <button class="bbtn" onclick="removeLastCol()">− Quitar último</button>
+    <button class="bbtn bbtn-dl" onclick="exportPDF()">Descargar PDF</button>
+  </div>
+</div>
+
+<script>
+const data={
+  limitBelief:'',impulseBelief:'',
+  pillars:[{lt:'',it:''},{lt:'',it:''},{lt:'',it:''},{lt:'',it:''},{lt:'',it:''}]
+};
+let tab='limit',editInfo=null,logoData=null;
+
+function bk(){return tab==='limit'?'limitBelief':'impulseBelief';}
+function tk(){return tab==='limit'?'lt':'it';}
+
+function render(){
+  const inp=document.getElementById('beliefInput');
+  inp.value=data[bk()];
+  inp.placeholder=tab==='limit'?'Escribe aquí la creencia limitante...':'Escribe aquí la creencia impulsora...';
+  const el=document.getElementById('colsEl');el.innerHTML='';
+  const k=tk();
+  data.pillars.forEach((p,i)=>{
+    const d=document.createElement('div');d.className='col';
+    const txt=p[k]||'';
+    const display=txt?txt.replace(/\n/g,'<br>'):'<span class="ph">Clic para escribir...</span>';
+    d.innerHTML=`<div class="col-body" data-i="${i}">${display}</div>${data.pillars.length>1?`<button class="col-remove" onclick="event.stopPropagation();removeCol(${i})" title="Quitar">×</button>`:''}`;
+    el.appendChild(d);
+  });
+  el.querySelectorAll('.col-body').forEach(div=>{
+    div.addEventListener('click',e=>{e.stopPropagation();openEdit(parseInt(div.dataset.i),div);});
+  });
+}
+
+document.getElementById('beliefInput').addEventListener('input',e=>{data[bk()]=e.target.value;});
+
+function openEdit(i,el){
+  if(editInfo!==null)saveEdit();
+  editInfo={i,key:tk()};
+  const pop=document.getElementById('editPop'),ta=document.getElementById('editTA');
+  ta.value=data.pillars[i][editInfo.key]||'';
+  const pr=el.getBoundingClientRect(),wr=document.getElementById('tw').getBoundingClientRect();
+  let left=pr.left-wr.left,top=pr.bottom-wr.top+8;
+  if(left+248>wr.width)left=wr.width-252;
+  if(left<0)left=0;
+  pop.style.left=left+'px';pop.style.top=top+'px';pop.style.display='block';
+  setTimeout(()=>ta.focus(),30);
+}
+function saveEdit(){
+  if(!editInfo)return;
+  data.pillars[editInfo.i][editInfo.key]=document.getElementById('editTA').value.trim();
+  editInfo=null;document.getElementById('editPop').style.display='none';render();
+}
+document.addEventListener('mousedown',e=>{if(editInfo&&!document.getElementById('editPop').contains(e.target))saveEdit();});
+document.getElementById('editTA').addEventListener('keydown',e=>{if(e.key==='Escape')saveEdit();});
+
+function switchTab(t){
+  if(editInfo)saveEdit();tab=t;
+  document.querySelectorAll('.tab').forEach((b,i)=>{b.className='tab'+((i===0&&t==='limit')||(i===1&&t==='impulse')?' active':'');});
+  render();
+}
+function addCol(){if(data.pillars.length>=8)return;data.pillars.push({lt:'',it:''});render();}
+function removeCol(i){if(data.pillars.length<=1)return;data.pillars.splice(i,1);render();}
+function removeLastCol(){if(data.pillars.length<=1)return;data.pillars.pop();render();}
+
+function loadLogo(){
+  const img=document.getElementById('logoImg');
+  function ok(){img.style.display='block';try{const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/png');}catch(e){}}
+  if(img.complete&&img.naturalWidth>0)ok();
+  else{img.onload=ok;img.onerror=()=>{document.getElementById('logoText').style.display='flex';};}
+}
+
+function drawTemple(doc,x,y,w,belief,pillars,tKey,label){
+  doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);
+
+  doc.setFontSize(9);doc.setTextColor(100,100,100);doc.setFont('helvetica','normal');
+  doc.text(label,x+w/2,y,{align:'center'});
+
+  const ry=y+3,rh=14;
+  doc.line(x+w/2,ry,x+1,ry+rh);doc.line(x+w/2,ry,x+w-1,ry+rh);doc.line(x+1,ry+rh,x+w-1,ry+rh);
+
+  const by=ry+rh,bh=10,boxH=105;
+  doc.setDrawColor(220,220,220);doc.setLineWidth(0.25);
+  doc.rect(x,by,w,boxH,'S');
+  doc.line(x,by+bh,x+w,by+bh);
+
+  doc.setFontSize(9);doc.setTextColor(30,30,30);doc.setFont('helvetica','bolditalic');
+  const bLines=doc.splitTextToSize(belief||'—',w-8);
+  doc.text(bLines,x+w/2,by+bh/2+1,{align:'center',baseline:'middle'});
+
+  const n=pillars.length,pad=2,gap=1.5;
+  const pw=(w-pad*2-(n-1)*gap)/n;
+  const pTop=by+bh+3,pH=boxH-bh-5;
+
+  pillars.forEach((p,i)=>{
+    const px=x+pad+i*(pw+gap);
+    doc.setDrawColor(230,230,230);doc.setFillColor(250,250,250);
+    doc.roundedRect(px,pTop,pw,pH,1,1,'FD');
+
+    doc.setFillColor(95,182,154);doc.setDrawColor(95,182,154);
+    doc.rect(px,pTop,pw,1,'F');
+
+    const text=p[tKey]||'';
+    if(text){
+      doc.setFontSize(5.5);doc.setTextColor(68,68,68);doc.setFont('helvetica','normal');
+      const lines=doc.splitTextToSize(text,pw-3);
+      lines.forEach((ln,j)=>{if(pTop+4+j*2.4<pTop+pH-1)doc.text(ln,px+1.5,pTop+4+j*2.4);});
+    }
+  });
+}
+
+async function exportPDF(){
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    const PW=297,PH=210;
+    doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+
+    if(logoData){try{doc.addImage(logoData,'PNG',PW-54,5,40,18);}catch(e){}}
+
+    doc.setFontSize(18);doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');
+    doc.text('El templo de la creencia',PW/2,15,{align:'center'});
+    doc.setFontSize(8);doc.setTextColor(170,170,170);
+    doc.text(new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}),PW/2,21,{align:'center'});
+
+    const tw=130,gap=14,lx=(PW-tw*2-gap)/2;
+    drawTemple(doc,lx,30,tw,data.limitBelief,data.pillars,'lt','Creencia limitante');
+    drawTemple(doc,lx+tw+gap,30,tw,data.impulseBelief,data.pillars,'it','Creencia impulsora');
+
+    doc.setFontSize(8);doc.setTextColor(170,170,170);
+    doc.text('borjaarano.com',PW-14,PH-8,{align:'right'});
+    doc.save('templo-de-la-creencia.pdf');
+  }catch(err){console.error(err);}
+}
+
+loadLogo();render();
+</script>
+</body>
+</html>

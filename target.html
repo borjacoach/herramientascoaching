@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:transparent;color:#222}
+.progress{position:sticky;top:0;z-index:100;height:3px;background:#f0f0f0}
+.progress-fill{height:100%;width:12.5%;background:#5fb69a;border-radius:0 3px 3px 0;transition:width 0.4s ease}
+.wrap{max-width:620px;margin:0 auto;padding:1rem 1.2rem 3rem}
+.header{display:flex;justify-content:center;align-items:center;position:relative;margin-bottom:8px;padding-bottom:16px;border-bottom:1px solid #ebebeb}
+.header h2{font-size:36px;font-weight:300;letter-spacing:1px}
+.logo-area{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.logo-area img{height:32px;display:none}
+.logo-text{display:none;flex-direction:column;align-items:flex-end;line-height:1.15}
+.lt-main{font-size:14px}.lt-inner{font-weight:700}.lt-key{font-weight:400;color:#5fb69a}
+.lt-main sup{font-size:7px;color:#aaa}.lt-sub{font-size:7px;color:#aaa;text-align:right;margin-top:1px}
+
+.step{padding:32px 0;border-bottom:1px solid #f5f5f5}
+.step:last-child{border-bottom:none}
+.step.hidden{display:none}
+.step-label{font-size:12px;color:#aaa;font-weight:500;margin-bottom:6px;letter-spacing:0.5px}
+.step h3{font-size:22px;font-weight:500;margin-bottom:10px}
+.step-desc{font-size:14px;color:#717171;line-height:1.6;margin-bottom:18px;max-width:520px}
+.step textarea,.step input[type=text]{width:100%;border:1px solid #ddd;border-radius:12px;padding:14px 16px;font-size:14px;font-family:inherit;line-height:1.6;color:#222;outline:none;background:#fafafa;transition:all 0.2s}
+.step textarea{min-height:130px;resize:vertical}
+.step input[type=text]{height:48px}
+.step textarea:focus,.step input[type=text]:focus{border-color:#222;background:#fff;box-shadow:0 0 0 3px rgba(0,0,0,0.04)}
+.step textarea::placeholder,.step input::placeholder{color:#ccc}
+.next-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:#5fb69a;color:#fff;border:none;border-radius:24px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-top:18px;transition:opacity 0.15s}
+.next-btn:hover{opacity:0.9}
+.next-btn:disabled{opacity:0.4;cursor:default}
+
+.ref-card{background:#fafafa;border:1px solid #ebebeb;border-radius:12px;padding:16px 20px;margin-bottom:18px;display:flex;gap:20px;flex-wrap:wrap}
+.ref-item{font-size:13px;color:#717171}
+.ref-item strong{color:#222;font-weight:500}
+
+.smart-ref{background:#fafafa;border:1px solid #ebebeb;border-radius:12px;padding:16px 20px;margin-bottom:18px;font-size:13px;line-height:1.8;color:#717171}
+.smart-ref strong{color:#5fb69a;font-weight:600}
+
+.verb-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.verb-tag{padding:5px 14px;border-radius:20px;border:1px solid #ebebeb;font-size:12px;color:#999;background:#fafafa}
+
+.closing{background:#fafafa;border-radius:16px;padding:24px;margin-top:20px;text-align:center}
+.closing p{font-size:14px;color:#717171;line-height:1.6;margin-bottom:16px}
+.dl-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;background:#5fb69a;color:#fff;border:none;border-radius:24px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
+.dl-btn:hover{opacity:0.9}
+
+.example{font-size:13px;color:#aaa;font-style:italic;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="progress"><div class="progress-fill" id="pf"></div></div>
+<div class="wrap">
+  <div class="header">
+    <h2>TARGET</h2>
+    <div class="logo-area">
+      <img id="logoImg" src="images/logo_innerkey.png" alt="Innerkey">
+      <div id="logoText" class="logo-text">
+        <span class="lt-main"><span class="lt-inner">inner</span><span class="lt-key">key</span><sup>®</sup></span>
+        <span class="lt-sub">Escuela Transpersonal<br>de Coaching</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step" id="s1">
+    <div class="step-label">Paso 1 de 8</div>
+    <h3>Lo que no quiero</h3>
+    <p class="step-desc">Piensa en el asunto que quieres trabajar. Escribe libremente todo aquello que NO quieres en relación a ese tema. No te censures — deja que salga todo.</p>
+    <textarea id="d1" placeholder="No quiero..."></textarea>
+    <button class="next-btn" onclick="go(2)">Siguiente →</button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step hidden" id="s2">
+    <div class="step-label">Paso 2 de 8</div>
+    <h3>Lo que sí quiero</h3>
+    <p class="step-desc">Ahora dale la vuelta. Escribe todo lo que SÍ quieres. Describe con detalle tu situación ideal, sin límites ni censura.</p>
+    <textarea id="d2" placeholder="Sí quiero..."></textarea>
+    <button class="next-btn" onclick="go(3)">Siguiente →</button>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step hidden" id="s3">
+    <div class="step-label">Paso 3 de 8</div>
+    <h3>Tu meta</h3>
+    <p class="step-desc">Resume el corazón de lo que quieres en pocas palabras. No uses verbos — solo el concepto que lo define.</p>
+    <input type="text" id="d3" placeholder="Ej: mi relación de pareja, mi aportación al mundo...">
+    <button class="next-btn" onclick="go(4)">Siguiente →</button>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step hidden" id="s4">
+    <div class="step-label">Paso 4 de 8</div>
+    <h3>Describe tu meta en positivo</h3>
+    <p class="step-desc">Detalla las características, valores, cualidades y aspectos fundamentales que quieres que tenga tu meta. Sé específico y escribe siempre en positivo — lo que sí quieres, no lo que quieres evitar.</p>
+    <textarea id="d4" placeholder="Mi meta tiene..."></textarea>
+    <button class="next-btn" onclick="go(5)">Siguiente →</button>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step hidden" id="s5">
+    <div class="step-label">Paso 5 de 8</div>
+    <h3>Elige tu verbo</h3>
+    <p class="step-desc">El verbo es lo que pone la acción. ¿Qué quieres hacer con tu meta? Evita verbos genéricos como 'conseguir' o 'lograr' — permiten que la mente eche balones fuera. Elige uno directo y emocional:</p>
+    <div class="verb-tags" id="verbTags"></div>
+    <input type="text" id="d5" placeholder="Escribe tu verbo...">
+    <button class="next-btn" onclick="go(6)">Siguiente →</button>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step hidden" id="s6">
+    <div class="step-label">Paso 6 de 8</div>
+    <h3>Pon fecha</h3>
+    <p class="step-desc">¿Para cuándo quieres haberlo logrado? Escucha lo que te dice tu mente. Escucha lo que te dice tu intuición. Elige una.</p>
+    <input type="text" id="d6" placeholder="Ej: en 6 meses, abril 2027...">
+    <button class="next-btn" onclick="go(7)">Siguiente →</button>
+  </div>
+
+  <!-- STEP 7 -->
+  <div class="step hidden" id="s7">
+    <div class="step-label">Paso 7 de 8</div>
+    <h3>Tu objetivo TARGET</h3>
+    <p class="step-desc">Fusiona todo lo anterior en una sola frase. Empieza con "Yo quiero..." y combina tu verbo, tu meta y tu fecha.</p>
+    <div class="ref-card" id="refCard">
+      <div class="ref-item"><strong>Meta:</strong> <span id="rm">—</span></div>
+      <div class="ref-item"><strong>Verbo:</strong> <span id="rv">—</span></div>
+      <div class="ref-item"><strong>Fecha:</strong> <span id="rf">—</span></div>
+    </div>
+    <textarea id="d7" placeholder="Yo quiero..."></textarea>
+    <p class="example">Ej: "Yo quiero crear mi propio restaurante minimalista hasta abril del 2027."</p>
+    <button class="next-btn" onclick="go(8)">Siguiente →</button>
+  </div>
+
+  <!-- STEP 8 -->
+  <div class="step hidden" id="s8">
+    <div class="step-label">Paso 8 de 8</div>
+    <h3>Tu objetivo S.M.A.R.T.</h3>
+    <p class="step-desc">Refina tu objetivo para asegurar que cumple los cinco criterios. Escribe tu objetivo definitivo.</p>
+    <div class="smart-ref">
+      <strong>S</strong> — Específico: en primera persona, presente, positivo y posible<br>
+      <strong>M</strong> — Medible: ¿cómo sabrás que lo has logrado?<br>
+      <strong>A</strong> — Ambicioso: que suponga un salto real en tu vida<br>
+      <strong>R</strong> — Realista: alcanzable en el tiempo y las circunstancias<br>
+      <strong>T</strong> — Temporal: con una fecha definida
+    </div>
+    <textarea id="d8" placeholder="Mi objetivo definitivo..."></textarea>
+
+    <div class="closing">
+      <button class="dl-btn" onclick="exportPDF()">Descargar PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const VERBS=['crear','construir','luchar por','provocar','incorporar','dirigir','vivir','ser','brillar','derrochar','conectar','contagiar','vibrar','transformar','impulsar'];
+let logoData=null;
+
+const vt=document.getElementById('verbTags');
+VERBS.forEach(v=>{
+  const s=document.createElement('span');s.className='verb-tag';s.textContent=v;
+  vt.appendChild(s);
+});
+
+function go(n){
+  const el=document.getElementById('s'+n);
+  if(!el)return;
+  el.classList.remove('hidden');
+  document.getElementById('pf').style.width=(n/8*100)+'%';
+
+  if(n===7){
+    document.getElementById('rm').textContent=document.getElementById('d3').value||'—';
+    document.getElementById('rv').textContent=document.getElementById('d5').value||'—';
+    document.getElementById('rf').textContent=document.getElementById('d6').value||'—';
+  }
+
+  setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),120);
+}
+
+function loadLogo(){
+  const img=document.getElementById('logoImg');
+  function ok(){img.style.display='block';try{const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/png');}catch(e){}}
+  if(img.complete&&img.naturalWidth>0)ok();
+  else{img.onload=ok;img.onerror=()=>{document.getElementById('logoText').style.display='flex';};}
+}
+
+async function exportPDF(){
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({unit:'mm',format:'a4'});
+    const PW=210,PH=297;
+    doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+
+    if(logoData){try{doc.addImage(logoData,'PNG',PW-50,8,38,17);}catch(e){}}
+
+    doc.setFontSize(28);doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');
+    doc.text('TARGET',14,22);
+    doc.setFontSize(9);doc.setTextColor(170,170,170);
+    doc.text(new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}),14,28);
+
+    doc.setDrawColor(240,240,240);doc.line(14,32,PW-14,32);
+
+    const fields=[
+      {label:'LO QUE NO QUIERO',id:'d1'},
+      {label:'LO QUE SÍ QUIERO',id:'d2'},
+      {label:'MI META',id:'d3'},
+      {label:'DESCRIPCIÓN DE MI META',id:'d4'},
+      {label:'MI VERBO',id:'d5'},
+      {label:'MI FECHA',id:'d6'},
+      {label:'MI OBJETIVO TARGET',id:'d7'},
+      {label:'MI OBJETIVO S.M.A.R.T.',id:'d8'}
+    ];
+
+    let yy=40;const mw=PW-28;
+    fields.forEach(f=>{
+      if(yy>PH-30){doc.addPage();yy=20;}
+      doc.setFontSize(8);doc.setTextColor(95,182,154);doc.setFont('helvetica','bold');
+      doc.text(f.label,14,yy);yy+=5;
+      doc.setFontSize(10);doc.setTextColor(50,50,50);doc.setFont('helvetica','normal');
+      const val=document.getElementById(f.id).value||'—';
+      const lines=doc.splitTextToSize(val,mw);
+      lines.forEach(ln=>{
+        if(yy>PH-16){doc.addPage();yy=20;}
+        doc.text(ln,14,yy);yy+=4.5;
+      });
+      yy+=8;
+    });
+
+    doc.setFontSize(8);doc.setTextColor(170,170,170);
+    doc.text('borjaarano.com',PW-14,PH-8,{align:'right'});
+    doc.save('mi-target.pdf');
+  }catch(err){console.error(err);}
+}
+
+loadLogo();
+</script>
+</body>
+</html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:transparent;color:#222}
+.wrap{max-width:1080px;margin:0 auto;padding:1rem 1.2rem 4rem}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #ebebeb}
+.header h2{font-size:32px;font-weight:300;color:#222;letter-spacing:0.5px}
+.header img{height:30px;display:none}
+
+.steps{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.stepbox{flex:1;min-width:230px;border:1px solid #ebebeb;border-radius:10px;padding:12px 14px;font-size:13px;color:#555;line-height:1.45}
+.stepbox.hidden{display:none}
+.stepbox.fade{animation:fadein 0.45s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.stepbox b{color:#2c3e50}
+.cnt{display:inline-block;margin-top:6px;font-size:12px;color:#5fb69a;font-weight:600}
+.cnt.lim{color:#e05a4f;animation:pulse 0.4s}
+@keyframes pulse{50%{transform:scale(1.18)}}
+
+.tables{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+table{flex:1;min-width:480px;border-collapse:collapse;font-size:12.5px}
+th{font-size:11px;color:#5fb69a;font-weight:700;text-align:left;padding:6px 6px;border-bottom:1px solid #ebebeb;letter-spacing:0.3px}
+th.mini{text-align:center;width:30px}
+td{padding:4px 6px;border-bottom:1px solid #f3f3f3;vertical-align:middle}
+td.mini{text-align:center;width:30px}
+.vname{font-weight:600;color:#2c3e50;white-space:nowrap}
+.vdesc{color:#888;font-size:11.5px;line-height:1.3}
+.vinput{border:1px solid #d8d8d8;border-radius:5px;padding:4px 6px;font-family:inherit;font-size:12.5px;width:140px;font-weight:600;color:#2c3e50}
+.dinput{border:1px solid #ebebeb;border-radius:5px;padding:4px 6px;font-family:inherit;font-size:11.5px;width:100%;color:#666}
+.vinput:focus,.dinput:focus{outline:none;border-color:#5fb69a}
+#addRow td{text-align:center;cursor:pointer;color:#5fb69a;font-weight:600;padding:9px;border-bottom:none}
+#addRow td:hover{background:#f4faf8;border-radius:6px}
+
+.box{width:23px;height:23px;border:1px solid #d8d8d8;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;margin:auto;transition:all 0.15s;user-select:none}
+.box:hover{border-color:#5fb69a}
+.box.on{background:#5fb69a;border-color:#5fb69a;color:#fff}
+.box.dis{background:#f6f6f6;border-color:#eee;cursor:not-allowed}
+.box.dis:hover{border-color:#eee}
+select.csel{width:46px;font-family:inherit;font-size:12.5px;padding:3px;border:1px solid #d8d8d8;border-radius:5px;background:#fff;color:#555;cursor:pointer;text-align:center}
+select.csel:disabled{background:#f6f6f6;border-color:#eee;color:#bbb;cursor:not-allowed}
+select.csel.active{background:#5fb69a;border-color:#5fb69a;color:#fff;font-weight:700}
+
+.next,.download{font-family:inherit;font-size:15px;font-weight:500;padding:12px 34px;border:none;border-radius:999px;background:#5fb69a;color:#fff;cursor:pointer;transition:opacity 0.2s}
+.next:hover,.download:hover{opacity:0.88}
+.nextwrap{margin-top:24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.warn{font-size:12.5px;color:#e05a4f;display:none}
+
+/* página 2 */
+.page2{display:none;margin-top:36px;padding-top:24px;border-top:1px solid #ebebeb}
+.page2.show{display:block}
+.page2 h3{font-size:22px;font-weight:300;color:#5fb69a;margin-bottom:14px}
+.t2{width:100%;border-collapse:collapse;table-layout:fixed}
+.t2 th{background:#5fb69a;color:#fff;font-size:12.5px;font-weight:700;text-align:center;padding:10px 8px;border:1px solid #fff;line-height:1.25}
+.t2 th small{font-weight:400;font-size:10.5px;opacity:0.9}
+.t2 td{border:1px solid #e3e3e3;padding:10px;vertical-align:top}
+.t2 .vcell{width:16%;text-align:center}
+.vtitle{font-weight:600;color:#2c3e50;font-size:13.5px;margin-bottom:12px}
+.grado{display:flex;flex-direction:column;align-items:center;gap:5px}
+.grado input{width:50px;height:30px;text-align:center;font-size:16px;font-weight:700;color:#5fb69a;border:1.5px solid #5fb69a;border-radius:6px;font-family:inherit}
+.grado input:focus{outline:none}
+.grado label{font-size:10px;color:#999;line-height:1.2}
+.t2 textarea{width:100%;min-height:132px;resize:vertical;border:none;font-family:inherit;font-size:13px;color:#333;line-height:1.45;background:transparent}
+.t2 textarea:focus{outline:none}
+.dlwrap{margin-top:24px}
+.footer-note{font-size:12px;color:#bbb;text-align:center;margin-top:34px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h2>Los valores</h2>
+    <img id="logoImg" src="images/logo_innerkey.png" alt="innerkey">
+  </div>
+
+  <div class="steps">
+    <div class="stepbox" id="stepA"><b>A.</b> Elige los <b>10</b> valores que más deseas que imperen en tu vida (deseo de futuro inmediato).<br><span class="cnt" id="cntA">Seleccionados: <b id="ca">0</b>/10</span></div>
+    <div class="stepbox hidden" id="stepB"><b>B.</b> De esos 10, descarta 4 y quédate con los <b>6</b> más importantes.<br><span class="cnt" id="cntB">Seleccionados: <b id="cb">0</b>/6</span></div>
+    <div class="stepbox hidden" id="stepC"><b>C.</b> De esos 6, elige tu <b>TOP 3</b> y ordénalos (1, 2, 3).<br><span class="cnt" id="cntC">Seleccionados: <b id="cc">0</b>/3</span></div>
+  </div>
+
+  <div class="tables">
+    <table id="tLeft"><thead><tr><th class="mini">A</th><th class="mini">B</th><th class="mini">C</th><th>Valor</th><th>Descripción orientativa</th></tr></thead><tbody id="bLeft"></tbody></table>
+    <table id="tRight"><thead><tr><th class="mini">A</th><th class="mini">B</th><th class="mini">C</th><th>Valor</th><th>Descripción orientativa</th></tr></thead><tbody id="bRight"></tbody></table>
+  </div>
+
+  <div class="nextwrap">
+    <button class="next" onclick="goNext()">Siguiente</button>
+    <span class="warn" id="warn">Selecciona y ordena tu TOP 3 en la columna C para continuar.</span>
+  </div>
+
+  <div class="page2" id="page2">
+    <h3>Profundiza en tu TOP 3</h3>
+    <table class="t2">
+      <thead><tr>
+        <th>VALOR<br><small>(grado de cumplimiento)</small></th>
+        <th>¿Qué me aporta?</th>
+        <th>¿Qué hago para cultivarlo?</th>
+        <th>¿De qué tentación me aparta?</th>
+        <th>¿Qué estoy dispuesto a sacrificar por él?</th>
+      </tr></thead>
+      <tbody id="p2body"></tbody>
+    </table>
+    <div class="dlwrap"><button class="download" onclick="exportPDF()">Descargar PDF</button></div>
+  </div>
+
+  <p class="footer-note">borjaarano.com</p>
+</div>
+
+<script>
+const values=[
+{name:'Aceptación',desc:'Aceptar lo que ocurre, sabiendo que todo es causalidad.'},
+{name:'Alegría',desc:'Vivir la vida sintiendo felicidad en el corazón.'},
+{name:'Amistad',desc:'Hacer y tener buenos amigos.'},
+{name:'Amor',desc:'Hacer que todo en la vida esté envuelto en amor verdadero.'},
+{name:'Apertura de corazón',desc:'Vivir la vida estando abierto/a, aunque sea más vulnerable.'},
+{name:'Aprendizaje',desc:'Hacer de la vida un crecimiento continuo.'},
+{name:'Armonía',desc:'Fomentar la armonía en mí y en los demás.'},
+{name:'Autenticidad',desc:'Ser yo al 100% con independencia de lo que opinen los demás.'},
+{name:'Aventura',desc:'Vivir la vida con intensidad, riesgos y sorpresas.'},
+{name:'Comodidad',desc:'Vivir cómoda y tranquilamente sin sobresaltos.'},
+{name:'Compasión',desc:'Compartir el sufrimiento de los demás para aliviarlo.'},
+{name:'Compromiso',desc:'Trabajar duro en aquello en lo que creo.'},
+{name:'Comunicación',desc:'Hablar abiertamente para fomentar una vida más feliz y pacífica.'},
+{name:'Confianza',desc:'Confiar plenamente hasta que se demuestre lo contrario.'},
+{name:'Confidencialidad',desc:'Mantener en secreto lo que ha sido compartido conmigo.'},
+{name:'Cooperación',desc:'Colaborar con otras personas para crear logros más grandes.'},
+{name:'Coraje',desc:'Vivir la vida con valentía.'},
+{name:'Creatividad',desc:'Utilizar mi ingenio para crear cosas.'},
+{name:'Crecimiento personal',desc:'Mejorar continuamente como Ser Espiritual humano.'},
+{name:'Dignidad humana',desc:'Vivir acorde a los valores de la naturaleza humana.'},
+{name:'Disciplina',desc:'Mantener una conducta adecuada en todo momento.'},
+{name:'Diversión',desc:'Tener muchos momentos de juego, risa y alegría compartida.'},
+{name:'Eficiencia',desc:'Hacer buen uso del tiempo y de los recursos.'},
+{name:'Entusiasmo',desc:'Tener ganas y emoción en lo que hago.'},
+{name:'Equilibrio',desc:'Tener compensadas las distintas facetas de mi vida.'},
+{name:'Ética',desc:'Hacer lo que considero justo y correcto.'},
+{name:'Excelencia',desc:'Buscar el mejor resultado y la máxima calidad en lo que hago.'},
+{name:'Éxito',desc:'Tener la satisfacción de lograr lo que me propongo en la vida.'},
+{name:'Familia',desc:'Crear un hogar unido, y velar por el bienestar y desarrollo de todos.'},
+{name:'Fe',desc:'Creer y confiar en Dios, en el Universo o en una Inteligencia Superior.'},
+{name:'Fiabilidad',desc:'Cumplir con lo que me comprometo.'},
+{name:'Honestidad',desc:'Decir siempre la verdad, pase lo que pase.'},
+{name:'Humildad',desc:'Vivir la vida con sana modestia y predicar con el ejemplo.'},
+{name:'Humor',desc:'Reír y hacer reír.'},
+{name:'Independencia',desc:'Vivir la vida con autonomía, sin depender de nadie.'},
+{name:'Iniciativa',desc:'Tomar mis propias decisiones y tener la actitud de tomar acción.'},
+{name:'Integridad',desc:'Representar un sólido pilar de honestidad, fiabilidad y seguridad.'},
+{name:'Intimidad',desc:'Tener momentos, facetas y aspectos sólo para mí.'},
+{name:'Intuición',desc:'Utilizar la intuición como guía en la vida.'},
+{name:'Justicia',desc:'Ser justo/a y equitativo/a.'},
+{name:'Lealtad',desc:'Honrar, proteger y ser fiel a aquello en lo que creo.'},
+{name:'Libertad',desc:'Vivir la vida a mi manera, pensando y actuando según mis criterios.'},
+{name:'Pasión',desc:'Vivir la vida con intensidad y entrega.'},
+{name:'Paz',desc:'Vivir en paz conmigo mismo/a y con los demás.'},
+{name:'Poder',desc:'Tener influencia sobre los demás.'},
+{name:'Potencial',desc:'Aprovechar al máximo mis capacidades intrínsecas.'},
+{name:'Propósito',desc:'Vivir mi vida con propósitos elevados.'},
+{name:'Realización personal',desc:'Buscar la autorrealización del SER.'},
+{name:'Reconocimiento',desc:'Ser reconocido/a y honrado/a por los demás en lo que hago.'},
+{name:'Rectitud',desc:'Ser intachable en mi conducta.'},
+{name:'Respeto',desc:'Mostrar y recibir respeto.'},
+{name:'Responsabilidad',desc:'Cumplir con mis responsabilidades.'},
+{name:'Sabiduría',desc:'Ser sabio/a en lo que pienso, digo y hago.'},
+{name:'Salud',desc:'Mantener una vida saludable que cuide mi cuerpo y mente.'},
+{name:'Seguridad',desc:'Buscar protección y garantía.'},
+{name:'Servicio',desc:'Servir a los demás con entrega y determinación.'},
+{name:'Superación',desc:'Ser mejor cada día y levantarme cada vez que me caigo.'},
+{name:'Trabajo',desc:'Tener un trabajo digno que esté alineado con mis habilidades.'},
+{name:'Unicidad',desc:'Reconocer, honrar y aprovechar lo que me hace ser único/a.'},
+{name:'Vocación',desc:'Hacer aquello para lo que creo haber nacido.'}
+];
+
+const ORIG=values.length; // 60 originales (izquierda 0-30, derecha 31-59)
+const state=values.map(()=>({a:false,b:false,c:0}));
+let revealedB=false,revealedC=false;
+window.chosen=[];
+
+const selOpts='<option value="0"></option><option value="1">1</option><option value="2">2</option><option value="3">3</option>';
+function rowHTML(i,custom){
+  const v=values[i];
+  const vCell=custom
+    ? `<td class="vname"><input class="vinput" id="vn${i}" placeholder="Tu valor" oninput="values[${i}].name=this.value"></td>`
+    : `<td class="vname">${v.name}</td>`;
+  const dCell=custom
+    ? `<td class="vdesc"><input class="dinput" id="vd${i}" placeholder="Descripción (opcional)" oninput="values[${i}].desc=this.value"></td>`
+    : `<td class="vdesc">${v.desc}</td>`;
+  return `<tr>
+    <td class="mini"><div class="box" id="a${i}" onclick="toggleA(${i})"></div></td>
+    <td class="mini"><div class="box dis" id="b${i}" onclick="toggleB(${i})"></div></td>
+    <td class="mini"><select class="csel" id="c${i}" onchange="setC(${i},this.value)" disabled>${selOpts}</select></td>
+    ${vCell}${dCell}
+  </tr>`;
+}
+let L='',R='';
+values.forEach((v,i)=>{ if(i<31)L+=rowHTML(i,false); else R+=rowHTML(i,false); });
+document.getElementById('bLeft').innerHTML=L;
+document.getElementById('bRight').innerHTML=R+`<tr id="addRow"><td colspan="5" onclick="addValue()">＋ Añadir valor</td></tr>`;
+
+function countA(){return state.filter(s=>s.a).length;}
+function countB(){return state.filter(s=>s.b).length;}
+function countC(){return state.filter(s=>s.c>0).length;}
+function flash(w){const e=document.getElementById('cnt'+w);e.classList.add('lim');setTimeout(()=>e.classList.remove('lim'),500);}
+
+function addValue(){
+  const i=values.length;
+  values.push({name:'',desc:'',custom:true});
+  state.push({a:false,b:false,c:0});
+  const tr=document.createElement('tr');
+  tr.innerHTML=rowHTML(i,true);
+  const addRow=document.getElementById('addRow');
+  addRow.parentNode.insertBefore(tr.firstElementChild?tr:tr,addRow);
+  // insert the actual <tr> (rowHTML returns a <tr>); move its child up
+  const realTr=tr; // tr is a <tr>? No: tr is a <tr> element we created, innerHTML set a <tr> inside -> wrong
+}
+</script>
+<script>
+/* corrige addValue: rowHTML devuelve un <tr>, así que lo parseamos correctamente */
+function addValue(){
+  const i=values.length;
+  values.push({name:'',desc:'',custom:true});
+  state.push({a:false,b:false,c:0});
+  const tmp=document.createElement('tbody');
+  tmp.innerHTML=rowHTML(i,true);
+  const newTr=tmp.firstElementChild;
+  const addRow=document.getElementById('addRow');
+  addRow.parentNode.insertBefore(newTr,addRow);
+  updateRow(i);
+  const inp=document.getElementById('vn'+i); if(inp)inp.focus();
+}
+
+function toggleA(i){
+  const s=state[i];
+  if(s.a){s.a=false;s.b=false;s.c=0;}
+  else{if(countA()>=10){flash('A');return;}s.a=true;}
+  updateRow(i);updateCounters();
+}
+function toggleB(i){
+  if(!revealedB)return;
+  const s=state[i];
+  if(!s.a)return;
+  if(s.b){s.b=false;s.c=0;}
+  else{if(countB()>=6){flash('B');return;}s.b=true;}
+  updateRow(i);updateCounters();
+}
+function setC(i,val){
+  if(!revealedC){updateRow(i);return;}
+  const s=state[i];
+  if(!s.b){updateRow(i);return;}
+  val=parseInt(val)||0;
+  if(val>0){
+    if(countC()>=3 && s.c===0){flash('C');updateRow(i);return;}
+    state.forEach((o,j)=>{if(j!==i&&o.c===val){o.c=0;updateRow(j);}});
+    s.c=val;
+  }else{s.c=0;}
+  updateRow(i);updateCounters();
+}
+function updateRow(i){
+  const s=state[i];
+  const a=document.getElementById('a'+i);if(a){a.classList.toggle('on',s.a);a.textContent=s.a?'✓':'';}
+  const b=document.getElementById('b'+i);if(b){b.classList.toggle('on',s.b);b.textContent=s.b?'✓':'';b.classList.toggle('dis',!revealedB||!s.a);}
+  const c=document.getElementById('c'+i);if(c){c.disabled=!revealedC||!s.b;c.value=String(s.c);c.classList.toggle('active',s.c>0);}
+}
+function refreshAll(){for(let i=0;i<state.length;i++)updateRow(i);}
+function maybeReveal(){
+  let changed=false;
+  if(countA()>=10 && !revealedB){revealedB=true;const e=document.getElementById('stepB');e.classList.remove('hidden');e.classList.add('fade');changed=true;}
+  if(countB()>=6 && !revealedC){revealedC=true;const e=document.getElementById('stepC');e.classList.remove('hidden');e.classList.add('fade');changed=true;}
+  if(changed)refreshAll();
+}
+function updateCounters(){
+  document.getElementById('ca').textContent=countA();
+  document.getElementById('cb').textContent=countB();
+  document.getElementById('cc').textContent=countC();
+  maybeReveal();
+}
+
+function goNext(){
+  const chosen=[];
+  state.forEach((s,i)=>{if(s.c>0)chosen.push({i,c:s.c});});
+  chosen.sort((x,y)=>x.c-y.c);
+  if(chosen.length===0){document.getElementById('warn').style.display='inline';return;}
+  document.getElementById('warn').style.display='none';
+  window.chosen=chosen;
+  let rows='';
+  chosen.forEach(o=>{
+    const n=values[o.i].name||'(sin nombre)';
+    rows+=`<tr>
+      <td class="vcell">
+        <div class="vtitle">${o.c}. ${n}</div>
+        <div class="grado"><input type="text" inputmode="numeric" maxlength="2" id="g${o.i}" oninput="this.value=this.value.replace(/[^0-9]/g,'')"><label>grado de<br>cumplimiento (1-10)</label></div>
+      </td>
+      <td><textarea id="qa${o.i}"></textarea></td>
+      <td><textarea id="qb${o.i}"></textarea></td>
+      <td><textarea id="qc${o.i}"></textarea></td>
+      <td><textarea id="qd${o.i}"></textarea></td>
+    </tr>`;
+  });
+  document.getElementById('p2body').innerHTML=rows;
+  const p2=document.getElementById('page2');p2.classList.add('show');
+  setTimeout(()=>p2.scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+
+// ---------- LOGO ----------
+let logoData=null,logoRatio=36/16;
+function loadLogo(){
+  const img=document.getElementById('logoImg');
+  function ok(){img.style.display='block';try{logoRatio=img.naturalWidth/img.naturalHeight;const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/png');}catch(e){}}
+  if(img.complete&&img.naturalWidth>0)ok();else{img.onload=ok;}
+}
+
+// ---------- PDF ----------
+function gv(id){const e=document.getElementById(id);return e&&e.value.trim()?e.value.trim():'';}
+
+function cellBox(doc,x,y,sz,on,num){
+  if(on){
+    doc.setFillColor(95,182,154);doc.setDrawColor(95,182,154);doc.setLineWidth(0.2);
+    doc.roundedRect(x,y,sz,sz,0.5,0.5,'FD');
+    if(num){
+      doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(6.5);
+      doc.text(String(num),x+sz/2,y+sz/2+1.25,{align:'center'});
+    }else{
+      doc.setDrawColor(255,255,255);doc.setLineWidth(0.45);
+      doc.line(x+sz*0.24,y+sz*0.52,x+sz*0.42,y+sz*0.70);
+      doc.line(x+sz*0.42,y+sz*0.70,x+sz*0.78,y+sz*0.28);
+    }
+  }else{
+    doc.setFillColor(255,255,255);doc.setDrawColor(205,205,205);doc.setLineWidth(0.2);
+    doc.roundedRect(x,y,sz,sz,0.5,0.5,'S');
+  }
+}
+
+function drawPage1(doc){
+  const PW=210,PH=297,M=10,gap=6;
+  doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(95,182,154);
+  doc.text('Los valores',M,22);
+  if(logoData){try{const lw=13*logoRatio;doc.addImage(logoData,'PNG',PW-M-lw,10,lw,13);}catch(e){}}
+
+  const halfW=(PW-2*M-gap)/2;
+  const left=[],right=[];
+  values.forEach((v,i)=>{ if(i<31)left.push(i); else right.push(i); });
+  const maxRows=Math.max(left.length,right.length);
+  const rowH=Math.min(5.2,(PH-22-35)/maxRows);
+
+  function drawHalf(ox,idxs){
+    const cA=ox+1,cB=ox+7,cC=ox+13,cV=ox+19,cD=ox+43;
+    const wD=halfW-43,wV=22;
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(95,182,154);
+    doc.text('A',cA+1.5,32,{align:'center'});
+    doc.text('B',cB+1.5,32,{align:'center'});
+    doc.text('C',cC+1.5,32,{align:'center'});
+    doc.text('Valor',cV,32);
+    doc.text('Descripción orientativa',cD,32);
+    doc.setDrawColor(220,220,220);doc.setLineWidth(0.3);doc.line(ox,33.5,ox+halfW,33.5);
+    let y=35;
+    idxs.forEach(i=>{
+      const s=state[i],sz=3.0,by=y+(rowH-sz)/2;
+      cellBox(doc,cA,by,sz,s.a,null);
+      cellBox(doc,cB,by,sz,s.b,null);
+      cellBox(doc,cC,by,sz,s.c>0,s.c>0?s.c:null);
+      doc.setFont('helvetica','bold');doc.setFontSize(6.6);doc.setTextColor(44,62,80);
+      doc.text((doc.splitTextToSize(values[i].name||'',wV)[0])||'',cV,y+rowH/2+1.2);
+      doc.setFont('helvetica','normal');doc.setFontSize(5.5);doc.setTextColor(135,135,135);
+      const dl=doc.splitTextToSize(values[i].desc||'',wD);
+      doc.text((dl[0]||'')+(dl.length>1?'…':''),cD,y+rowH/2+1.2);
+      doc.setDrawColor(243,243,243);doc.setLineWidth(0.15);doc.line(ox,y+rowH,ox+halfW,y+rowH);
+      y+=rowH;
+    });
+  }
+  drawHalf(M,left);
+  drawHalf(M+halfW+gap,right);
+
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(95,182,154);
+  doc.text('www.inner-key.com',PW/2,PH-9,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(150,150,150);
+  doc.text('Copyright de Innerkey Escuela Transpersonal de Coaching. No se permite su duplicación, transmisión ni reproducción, total o parcial.',PW/2,PH-6,{align:'center'});
+}
+
+function drawPage2(doc){
+  const PW=297,PH=210,M=12;
+  doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(24);doc.setTextColor(95,182,154);
+  doc.text('Los valores',M,22);
+  if(logoData){try{const lw=14*logoRatio;doc.addImage(logoData,'PNG',PW-M-lw,9,lw,14);}catch(e){}}
+
+  const top=32,w0=46,wr=(PW-2*M-w0)/4;
+  const cols=[{x:M,w:w0},{x:M+w0,w:wr},{x:M+w0+wr,w:wr},{x:M+w0+2*wr,w:wr},{x:M+w0+3*wr,w:wr}];
+  const heads=['','¿Qué me aporta?','¿Qué hago para cultivarlo?','¿De qué tentación me aparta?','¿Qué estoy dispuesto a sacrificar por él?'];
+  const hh=15;
+  doc.setFillColor(95,182,154);
+  cols.forEach(c=>doc.rect(c.x,top,c.w,hh,'F'));
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');doc.setFontSize(10);
+  doc.text('VALOR',cols[0].x+cols[0].w/2,top+7,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(7);
+  doc.text('(grado de cumplimiento)',cols[0].x+cols[0].w/2,top+11.5,{align:'center'});
+  doc.setFont('helvetica','bold');doc.setFontSize(9);
+  for(let k=1;k<5;k++){
+    const c=cols[k];const ln=doc.splitTextToSize(heads[k],c.w-5);
+    let ty=top+(hh-(ln.length*4))/2+3.4;
+    ln.forEach((l,li)=>doc.text(l,c.x+c.w/2,ty+li*4,{align:'center'}));
+  }
+
+  let y=top+hh;
+  const lineH=4.2,pad=3.2;
+  (window.chosen||[]).forEach(o=>{
+    const n=values[o.i].name||'(sin nombre)';
+    const g=gv('g'+o.i);
+    const A=doc.splitTextToSize(gv('qa'+o.i),cols[1].w-2*pad);
+    const B=doc.splitTextToSize(gv('qb'+o.i),cols[2].w-2*pad);
+    const C=doc.splitTextToSize(gv('qc'+o.i),cols[3].w-2*pad);
+    const D=doc.splitTextToSize(gv('qd'+o.i),cols[4].w-2*pad);
+    const txtH=Math.max(A.length,B.length,C.length,D.length,1)*lineH+2*pad;
+    const rowH=Math.max(txtH,48);
+    doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);
+    cols.forEach(c=>doc.rect(c.x,y,c.w,rowH));
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(11);
+    const nm=doc.splitTextToSize(o.c+'. '+n,cols[0].w-2*pad);
+    nm.forEach((l,li)=>doc.text(l,cols[0].x+cols[0].w/2,y+8+li*5,{align:'center'}));
+    const bw=22,bh=12,bx=cols[0].x+(cols[0].w-bw)/2,by=y+8+nm.length*5+3;
+    doc.setDrawColor(95,182,154);doc.setLineWidth(0.7);doc.roundedRect(bx,by,bw,bh,1.5,1.5,'S');
+    doc.setTextColor(95,182,154);doc.setFont('helvetica','bold');doc.setFontSize(14);
+    doc.text(g?g:'',bx+bw/2,by+8.2,{align:'center'});
+    doc.setTextColor(60,60,60);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    const put=(LN,c)=>{let ty=y+pad+2.6;LN.forEach(l=>{doc.text(l,c.x+pad,ty);ty+=lineH;});};
+    put(A,cols[1]);put(B,cols[2]);put(C,cols[3]);put(D,cols[4]);
+    y+=rowH;
+  });
+
+  doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(95,182,154);
+  doc.text('www.inner-key.com',PW/2,PH-11,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(150,150,150);
+  doc.text('Copyright de Innerkey Escuela Transpersonal de Coaching. No se permite su duplicación, transmisión ni reproducción, total o parcial.',PW/2,PH-7,{align:'center'});
+}
+
+function exportPDF(){
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    drawPage1(doc);
+    doc.addPage('a4','landscape');
+    drawPage2(doc);
+    doc.save('los-valores.pdf');
+  }catch(err){console.error(err);}
+}
+
+loadLogo();
+</script>
+</body>
+</html>

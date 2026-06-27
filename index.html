@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Herramientas para coaching</title>
+<style>
+:root{--navy:#2B3D4F;--blue:#B0C4DE;--blue-mid:#6B9AC4;--text:#333333;--text-light:#666666;--border:#D3D1C7;--gray:#F3F4F6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#fff;color:var(--text)}
+a{text-decoration:none;color:inherit}
+
+.topbar{background:var(--gray);padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-text{display:flex;flex-direction:column;line-height:1.1}
+.logo-text .lt1{font-size:15px;font-weight:400;color:var(--text-light)}
+.logo-text .lt2{font-size:19px;font-weight:700;color:var(--navy)}
+.brand-by{font-size:12px;color:#94a3b8;margin-left:8px;align-self:flex-end}
+
+.hero{background:var(--gray);padding:48px 24px 56px;text-align:center}
+.hero h1{font-size:clamp(28px,5vw,46px);font-weight:300;color:var(--navy);letter-spacing:0.3px;margin-bottom:12px;line-height:1.15}
+.hero h1 b{font-weight:700;background:linear-gradient(135deg,var(--navy),var(--blue-mid));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:17px;color:var(--text-light);max-width:580px;margin:0 auto;line-height:1.6}
+
+.cats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:24px 24px 8px;max-width:900px;margin:0 auto}
+.cat-chip{padding:9px 20px;border-radius:999px;border:1px solid var(--border);font-size:13px;color:var(--text-light);cursor:pointer;transition:all 0.2s;background:#fff}
+.cat-chip:hover{border-color:var(--navy);color:var(--navy)}
+.cat-chip.active{border-color:var(--navy);color:var(--navy);background:var(--blue);font-weight:500}
+
+.grid-wrap{max-width:1140px;margin:0 auto;padding:24px 24px 60px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+
+.card{border:1px solid #eee;border-radius:12px;padding:26px 24px 22px;display:flex;flex-direction:column;transition:all 0.25s;cursor:pointer;position:relative;overflow:hidden;background:#fff}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--navy),var(--blue-mid));transform:scaleX(0);transform-origin:left;transition:transform 0.3s}
+.card:hover{border-color:#ccc;box-shadow:0 8px 28px rgba(0,0,0,0.06);transform:translateY(-2px)}
+.card:hover::before{transform:scaleX(1)}
+.card-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.card-icon{font-size:26px;line-height:1;flex-shrink:0}
+.card h3{font-size:18px;font-weight:600;color:var(--navy);line-height:1.2}
+
+.card-fields{display:flex;flex-direction:column;gap:10px;flex:1}
+.field-row{display:flex;gap:8px;font-size:12.5px;line-height:1.45}
+.field-label{flex-shrink:0;width:72px;font-weight:700;color:var(--navy);padding-top:1px}
+.field-val{color:var(--text-light);flex:1}
+
+.trust-badges{display:flex;gap:4px;flex-wrap:wrap;padding-top:1px}
+.trust-b{font-size:10px;font-weight:700;color:var(--navy);background:var(--blue);border-radius:4px;padding:2px 7px;letter-spacing:0.3px}
+
+.card-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--gray);font-size:11.5px;color:var(--navy);font-weight:600;opacity:0;transition:opacity 0.25s}
+.card:hover .card-foot{opacity:1}
+
+.empty-state{grid-column:1/-1;text-align:center;padding:60px 20px}
+.empty-state p{font-size:15px;color:var(--text-light);margin-top:12px}
+
+.footer{background:var(--gray);border-top:1px solid #e5e7eb;padding:28px 24px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.footer-logo{display:flex;align-items:center;gap:8px}
+.footer-logo .lt1{font-size:13px;font-weight:400;color:var(--text-light)}
+.footer-logo .lt2{font-size:16px;font-weight:700;color:var(--navy)}
+.footer-by{font-size:12px;color:#94a3b8}
+.footer-link{font-size:13px;color:var(--navy);font-weight:600}
+.footer-copy{font-size:11px;color:var(--border)}
+
+@media(max-width:720px){.hero{padding:36px 20px 44px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2B3D4F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+    <div class="logo-text"><span class="lt1">Herramientas</span><span class="lt2">Coaching</span></div>
+    <span class="brand-by">by Innerkey</span>
+  </div>
+</div>
+
+<div class="hero">
+  <h1>Herramientas para <b>coaching</b></h1>
+  <p>Herramientas interactivas de coaching transpersonal y ejecutivo planteadas por Innerkey.</p>
+</div>
+
+<div class="cats" id="cats">
+  <div class="cat-chip active" onclick="filter('all')">Todas</div>
+  <div class="cat-chip" onclick="filter('trans')">Coaching Transpersonal</div>
+  <div class="cat-chip" onclick="filter('exec')">Coaching Ejecutivo</div>
+  <div class="cat-chip" onclick="filter('team')">Coaching de Equipos</div>
+</div>
+
+<div class="grid-wrap"><div class="grid" id="grid"></div></div>
+
+<div class="footer">
+  <div class="footer-logo">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B3D4F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+    <div class="logo-text"><span class="lt1">Herramientas</span><span class="lt2">Coaching</span></div>
+  </div>
+  <div class="footer-by">by Innerkey · <a class="footer-link" href="https://www.inner-key.com" target="_blank">www.inner-key.com</a></div>
+  <div class="footer-copy">herramientascoaching.com · Las herramientas son propiedad intelectual de Innerkey. No se permite su duplicación sin autorización.</div>
+</div>
+
+<script>
+const tools=[
+  {cat:'trans',icon:'🎯',name:'La rueda',file:'rueda.html',
+   pq:'Encontrar el área de su vida en la que trabajar durante el proceso',
+   pqn:'Clientes que no tienen claro qué les pasa y no saben por dónde empezar',
+   qd:'Algo falla pero no sé qué es',
+   trust:'T'},
+  {cat:'trans',icon:'💎',name:'Los valores',file:'los_valores.html',
+   pq:'Identificar aquellos valores más importantes y tomar responsabilidad y actuar para vivir alineado con ellos',
+   pqn:'Clientes que no están alineados con las decisiones que toman',
+   qd:'No estoy convencido de mis decisiones. No me siento protagonista de mi vida. Me siento un títere.',
+   trust:'U'},
+  {cat:'trans',icon:'🎭',name:'Subpersonalidades',file:'subpersonalidades.html',
+   pq:'Definir el grado de participación de cada personalidad en los distintos hábitos de la vida',
+   pqn:'Clientes que no son conscientes de por qué toman las decisiones que toman',
+   qd:'Tomo decisiones pero no sé por qué. No me siento bien con algunas decisiones que tomo',
+   trust:'RU'},
+  {cat:'trans',icon:'🎯',name:'TARGET',file:'target.html',
+   pq:'Conoce el área en que quiere trabajar pero no sabe exactamente lo que quiere en ella',
+   pqn:'Clientes que saben qué área trabajar pero no consiguen bajarlo a un objetivo SMART',
+   qd:'Quiero conseguir algo en este campo pero no sé qué exactamente o cómo resumirlo en una frase',
+   trust:'T'},
+  {cat:'trans',icon:'🔄',name:'Aún no, pero casi',file:'aun_no_casi.html',
+   pq:'Poner claridad en por qué no ha conseguido el objetivo, recuperar el propósito y probar nuevo para conseguirlo',
+   pqn:'Clientes que llevan tiempo trabajando en algo y están pensando en rendirse',
+   qd:'He probado muchas veces conseguir X, pero no lo consigo',
+   trust:'RUST'},
+  {cat:'trans',icon:'🌸',name:'La flor del perdón',file:'flor_perdon.html',
+   pq:'Soltar el rencor hacia otra persona',
+   pqn:'Clientes que necesitan perdonar a alguien para liberarse de las emociones que le enganchan y no le permiten avanzar',
+   qd:'Una persona me hizo X y sigo enfadada con ella. La relación con esta persona me genera X emoción.',
+   trust:'RU'},
+  {cat:'trans',icon:'🏛️',name:'El templo de la creencia',file:'templo_creencia.html',
+   pq:'Transformar una creencia limitante',
+   pqn:'Clientes que vean limitado su potencial por una creencia limitante (ser conscientes de que la creencia no desaparecerá, pero se puede transformar)',
+   qd:'Algo me dice que no puedo hacer X.',
+   trust:'RU'},
+  {cat:'exec',icon:'⚖️',name:'Líder o Directivo/a',file:'lider_directivo.html',
+   pq:'Ser consciente de hacia dónde tiende su estilo de liderazgo',
+   pqn:'Clientes que creen que tienen un estilo de liderazgo \'líder coach\'',
+   qd:'',trust:'R'},
+  {cat:'exec',icon:'📊',name:'Estilos de liderazgo',file:'estilos_liderazgo.html',
+   pq:'Tener una visión clara de: cuál cree que es su estilo de liderazgo, cuál es realmente, dónde quiere llegar y qué tiene que hacer para conseguirlo',
+   pqn:'Clientes que no son conscientes del estilo de liderazgo que tienen',
+   qd:'',trust:'R'},
+  {cat:'exec',icon:'🚀',name:'Las palancas de una imagen de éxito',file:'imagen_exito.html',
+   pq:'Tomar consciencia de la importancia de ser visible y venderse a uno mismo',
+   pqn:'Clientes que trabajan muy bien pero que no se sienten valorados y/o no consiguen avanzar profesionalmente',
+   qd:'',trust:'R'},
+  {cat:'exec',icon:'🗺️',name:'Mapa de relaciones',file:'mapa_relaciones.html',
+   pq:'Ver cómo son las relaciones que tiene con sus compañeros/as para trabajar aquellas que le permitan llegar a su objetivo',
+   pqn:'Clientes que quieren conseguir algo pero no saben cómo ni a quién acudir',
+   qd:'',trust:'R'},
+  {cat:'exec',icon:'⛓️',name:'Las resignaciones desatendidas',file:'resignaciones.html',
+   pq:'',pqn:'',qd:'',trust:''},
+  {cat:'exec',icon:'🏅',name:'Mi sello personal',file:'sello_personal.html',
+   pq:'',pqn:'',qd:'',trust:''}
+];
+
+function trustBadges(t){
+  if(!t)return'';
+  return t.split('').map(c=>`<span class="trust-b">${c}</span>`).join('');
+}
+
+function renderGrid(cat){
+  const filtered=cat==='all'?tools:tools.filter(t=>t.cat===cat);
+  const grid=document.getElementById('grid');
+  if(!filtered.length){
+    grid.innerHTML=`<div class="empty-state"><div style="font-size:36px;opacity:0.4">🔧</div><p>Próximamente. Estamos preparando las herramientas de esta categoría.</p></div>`;
+    return;
+  }
+  grid.innerHTML=filtered.map(t=>{
+    let fields='';
+    if(t.pq)fields+=`<div class="field-row"><span class="field-label">Para qué</span><span class="field-val">${t.pq}</span></div>`;
+    if(t.pqn)fields+=`<div class="field-row"><span class="field-label">Para quién</span><span class="field-val">${t.pqn}</span></div>`;
+    if(t.qd)fields+=`<div class="field-row"><span class="field-label">Qué dicen</span><span class="field-val">"${t.qd}"</span></div>`;
+    if(t.trust)fields+=`<div class="field-row"><span class="field-label">T.R.U.S.T.</span><span class="field-val"><div class="trust-badges">${trustBadges(t.trust)}</div></span></div>`;
+    return `<a class="card" href="${t.file}">
+      <div class="card-top"><span class="card-icon">${t.icon}</span><h3>${t.name}</h3></div>
+      <div class="card-fields">${fields||'<span style="font-size:13px;color:var(--border);font-style:italic">Próximamente</span>'}</div>
+      <div class="card-foot">Abrir herramienta →</div>
+    </a>`;
+  }).join('');
+}
+
+function filter(cat){
+  document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));
+  event.target.classList.add('active');
+  renderGrid(cat);
+}
+
+renderGrid('all');
+</script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:transparent;color:#222}
+.wrap{max-width:1100px;margin:0 auto;padding:1rem 1.2rem 4rem}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #ebebeb}
+.header h2{font-size:32px;font-weight:300;color:#222}
+.header img{height:30px;display:none}
+.next{font-family:inherit;font-size:15px;font-weight:500;padding:12px 32px;border:none;border-radius:999px;background:#5fb69a;color:#fff;cursor:pointer;transition:opacity 0.2s}
+.download{font-family:inherit;font-size:15px;font-weight:500;padding:12px 32px;border:1.5px solid #5fb69a;border-radius:999px;background:#fff;color:#5fb69a;cursor:pointer;transition:opacity 0.2s}
+.next:hover,.download:hover{opacity:0.85}
+.btnrow{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.page{display:none;margin-top:40px;padding-top:24px;border-top:1px solid #ebebeb}
+.page.show{display:block}
+
+/* cuestionario */
+.qsec{margin-bottom:28px}
+.qt{width:100%;border-collapse:collapse}
+.qt thead th{background:#5fb69a;color:#fff;font-weight:700;padding:9px 12px;text-align:left;font-size:13px;border:1px solid #fff}
+.qt thead th:last-child{width:220px;text-align:center}
+.qt td{border-bottom:1px solid #f0f0f0;padding:8px 12px;font-size:13px;color:#444;line-height:1.35;vertical-align:middle}
+.qt td:last-child{text-align:center}
+.dots{display:inline-flex;gap:4px}
+.dot{width:28px;height:28px;border:1px solid #d8d8d8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#888;cursor:pointer;transition:all 0.15s;user-select:none;background:#fff}
+.dot:hover{border-color:#5fb69a;color:#5fb69a}
+.dot.sel{background:#5fb69a;border-color:#5fb69a;color:#fff;font-weight:700}
+.avgrow td{background:#5fb69a;color:#fff;font-weight:700;font-size:13px;padding:10px 12px;border:none}
+.avgrow td:last-child{text-align:center;font-size:16px}
+
+/* gráfico + sidebar */
+.graph-container{display:flex;gap:16px;align-items:flex-start}
+.graph-wrap{flex:0 0 80%;max-width:80%}
+.graph-wrap svg{width:100%;height:auto}
+.desc-sidebar{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;max-height:600px;overflow-y:auto;padding-right:4px}
+.desc-card{border:1px solid #ebebeb;border-radius:8px;padding:10px 12px;font-size:12px;color:#555;line-height:1.4;opacity:0;transform:translateY(6px);transition:all 0.35s ease}
+.desc-card.show{opacity:1;transform:none}
+.desc-card .dtitle{font-size:13px;font-weight:700;color:#5fb69a;margin-bottom:2px}
+.you-label{font-size:13px;color:#2c3e50;font-weight:600;text-align:center;margin-top:12px;opacity:0;transition:opacity 0.3s}
+.you-label.show{opacity:1}
+.footer-note{font-size:12px;color:#bbb;text-align:center;margin-top:34px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h2>Estilos de liderazgo</h2>
+    <img id="logoImg" src="images/logo_innerkey.png" alt="innerkey">
+  </div>
+
+  <!-- PASO 1 -->
+  <div id="p1">
+    <div class="qsec" id="secE"></div>
+    <div class="qsec" id="secC"></div>
+    <div class="btnrow">
+      <button class="next" onclick="calcAvg()">Calcular promedio</button>
+      <button class="next" onclick="goP2()">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- PASO 2 -->
+  <div class="page" id="p2">
+    <div class="graph-container">
+      <div class="graph-wrap">
+        <svg id="gsvg" viewBox="0 0 640 520" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="desc-sidebar" id="sidebar"></div>
+    </div>
+    <div class="you-label" id="youLabel"></div>
+    <div class="btnrow" id="btnP2">
+      <button class="next" id="btnNext2" onclick="revealNext()">Siguiente</button>
+      <button class="download" id="btnDL" style="display:none" onclick="exportPDF()">Descargar PDF</button>
+    </div>
+  </div>
+
+  <p class="footer-note">borjaarano.com</p>
+</div>
+
+<script>
+const exigQ=[
+'Busco la máxima excelencia en cada trabajo',
+'Movilizo al equipo para rendir por encima de lo que ellos mismos se creen capaces',
+'El esfuerzo y la meritocracia son la clave para progresar',
+'Fomento un espíritu implacable de ganador que alcance cotas de éxito cada vez más altas',
+'Invito insistentemente al equipo para que se expongan y destaquen',
+'Fomento una sana competitividad interna',
+'En situaciones de conflicto, el éxito del equipo está por encima de la emocionalidad individual o colectiva',
+'Mantengo sistemáticamente al equipo fuera de su zona de confort para maximizar su desarrollo',
+'Acepto los conflictos en pro de encontrar las mejores soluciones para el éxito del equipo',
+'Fomento la asunción de riesgos personales para maximizar el éxito'
+];
+const confQ=[
+'Confío en que mi equipo puede hacer un trabajo mejor que el mío',
+'Delego asuntos de responsabilidad para fomentar el desarrollo del equipo, asumiendo riesgo',
+'Fomento la transparencia de información crítica y/o sensible',
+'Le doy mucha prioridad a cómo se siente el equipo emocionalmente',
+'Dedico mucho tiempo a enseñar y coachear al equipo',
+'Potencio la iniciativa y toma de decisiones individual, aunque en ocasiones se desvíe de lo que yo considero correcto',
+'Protejo al equipo ante críticas externas aunque me afecte negativamente',
+"Fomento una cultura de igualdad en la que todos somos 'líderes'",
+'Potencio la participación y expresión de opiniones, aunque implique una inversión significativa de tiempo',
+'Involucro al equipo para tomar decisiones importantes, aunque eso me pueda llevar a hacer concesiones de peso'
+];
+
+const scores={e:new Array(10).fill(0),c:new Array(10).fill(0)};
+let avgE=0,avgC=0;
+
+function buildTable(arr,key,containerId,title){
+  let rows='';
+  arr.forEach((q,i)=>{
+    let dots='';
+    for(let n=1;n<=10;n++) dots+=`<span class="dot" id="${key}${i}_${n}" onclick="pick('${key}',${i},${n})">${n}</span>`;
+    rows+=`<tr><td>${q}</td><td><div class="dots">${dots}</div></td></tr>`;
+  });
+  const label=key==='e'?'Promedio de exigencia':'Promedio de confianza';
+  const avgId=key==='e'?'avgE':'avgC';
+  document.getElementById(containerId).innerHTML=`
+    <table class="qt"><thead><tr><th>${title}</th><th>Medida</th></tr></thead>
+    <tbody>${rows}</tbody>
+    <tr class="avgrow"><td>${label}</td><td id="${avgId}">—</td></tr></table>`;
+}
+buildTable(exigQ,'e','secE','Preguntas sobre el nivel de exigencia');
+buildTable(confQ,'c','secC','Preguntas sobre el nivel de confianza');
+
+function pick(key,i,n){
+  scores[key][i]=n;
+  for(let k=1;k<=10;k++){document.getElementById(`${key}${i}_${k}`).classList.toggle('sel',k===n);}
+}
+function avg(arr){const f=arr.filter(x=>x>0);return f.length?f.reduce((a,b)=>a+b,0)/f.length:0;}
+function calcAvg(){
+  avgE=Math.round(avg(scores.e)*10)/10;
+  avgC=Math.round(avg(scores.c)*10)/10;
+  document.getElementById('avgE').textContent=avgE||'—';
+  document.getElementById('avgC').textContent=avgC||'—';
+}
+
+// ---- GRÁFICO ----
+const STYLES=[
+  {name:'Autocrático',sub:'ordeno y mando',conf:3.8,exig:7.5,
+   desc:'Prioriza el control y la excelencia personal. Confía más en su propio trabajo que en el del equipo. Le cuesta delegar. Conveniente cuando el líder es el máximo experto en una materia concreta.'},
+  {name:'Directivo',sub:'jerarquizo y parcelo',conf:4.8,exig:5.8,
+   desc:'Dirige a través de su primera línea de reporte dando instrucciones y controlando el flujo de información. Conveniente ante situaciones de mucha presión por resultados a corto plazo.'},
+  {name:'Protector',sub:'enseño y llevo',conf:5.5,exig:4.2,
+   desc:'Prioriza los aspectos humanos y relacionales del equipo. Le gusta enseñar y acompañar en el desarrollo. Conveniente con equipos jóvenes o inexpertos, o en climas de crispación.'},
+  {name:'Democrático',sub:'comparto y consensúo',conf:6.8,exig:4.5,
+   desc:'El estilo más participativo. Fomenta la igualdad y la toma de decisiones por consenso mayoritario. Conveniente con equipos potentes o para fomentar creatividad y compromiso.'},
+  {name:'Delegador',sub:'delego y controlo',conf:7.3,exig:6.8,
+   desc:'Define la estrategia y crea un marco de actuación para cada miembro, fomentando la iniciativa dentro de ese marco. Conveniente para empoderar manteniendo el rumbo prefijado.'},
+  {name:'Empoderador',sub:'lidero y coacheo',conf:8.2,exig:8.3,
+   desc:'Prioriza crear un equipo de alto rendimiento aprovechando los talentos individuales. Ofrece apoyo, feedback y feedforward continuado. Conveniente cuando los objetivos requieren un equipo de alto rendimiento.'}
+];
+
+const GX=70,GY=30,GW=500,GH=420;
+const XMIN=3,XMAX=9,YMIN=3,YMAX=9;
+function tx(v){return GX+(v-XMIN)/(XMAX-XMIN)*GW;}
+function ty(v){return GY+GH-(v-YMIN)/(YMAX-YMIN)*GH;}
+
+function buildGraph(){
+  const svg=document.getElementById('gsvg');
+  let s='';
+  for(let i=XMIN;i<=XMAX;i++){
+    const x=tx(i);
+    s+=`<line x1="${x}" y1="${GY}" x2="${x}" y2="${GY+GH}" stroke="#e8e8e8" stroke-width="0.5"/>`;
+    s+=`<text x="${x}" y="${GY+GH+16}" text-anchor="middle" font-size="12" fill="#999">${i}</text>`;
+  }
+  for(let i=YMIN;i<=YMAX;i++){
+    const y=ty(i);
+    s+=`<line x1="${GX}" y1="${y}" x2="${GX+GW}" y2="${y}" stroke="#e8e8e8" stroke-width="0.5"/>`;
+    s+=`<text x="${GX-10}" y="${y+4}" text-anchor="end" font-size="12" fill="#999">${i}</text>`;
+  }
+  s+=`<line x1="${GX}" y1="${GY}" x2="${GX}" y2="${GY+GH}" stroke="#5fb69a" stroke-width="2"/>`;
+  s+=`<line x1="${GX}" y1="${GY+GH}" x2="${GX+GW}" y2="${GY+GH}" stroke="#5fb69a" stroke-width="2"/>`;
+  s+=`<text x="${GX+GW/2}" y="${GY+GH+42}" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">confianza</text>`;
+  s+=`<text x="14" y="${GY+GH/2}" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50" transform="rotate(-90,14,${GY+GH/2})">exigencia</text>`;
+  STYLES.forEach((st,i)=>{
+    const cx=tx(st.conf),cy=ty(st.exig),r=42;
+    s+=`<g id="st${i}" style="opacity:0;transition:opacity 0.5s">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#5fb69a" stroke-width="2"/>
+      <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="13" font-weight="700" fill="#2c3e50">${st.name}</text>
+      <text x="${cx}" y="${cy+10}" text-anchor="middle" font-size="11" fill="#777">${st.sub}</text>
+    </g>`;
+  });
+  s+=`<g id="userDot" style="opacity:0;transition:opacity 0.5s">
+    <circle id="udC1" cx="0" cy="0" r="10" fill="#5fb69a"/>
+    <circle id="udC2" cx="0" cy="0" r="16" fill="none" stroke="#5fb69a" stroke-width="2" stroke-dasharray="4 3"/>
+    <text id="udTx" x="0" y="0" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">TÚ</text>
+  </g>`;
+  svg.innerHTML=s;
+}
+buildGraph();
+
+// pre-build sidebar cards (hidden)
+const sidebar=document.getElementById('sidebar');
+STYLES.forEach((st,i)=>{
+  const card=document.createElement('div');
+  card.className='desc-card';card.id='card'+i;
+  card.innerHTML=`<div class="dtitle">${st.name}</div>${st.desc}`;
+  sidebar.appendChild(card);
+});
+
+let revealStep=0;
+function revealNext(){
+  if(revealStep<6){
+    document.getElementById('st'+revealStep).style.opacity='1';
+    const card=document.getElementById('card'+revealStep);
+    card.classList.add('show');
+    card.scrollIntoView({behavior:'smooth',block:'nearest'});
+    revealStep++;
+  }else if(revealStep===6){
+    if(!avgE&&!avgC)calcAvg();
+    const ux=tx(avgC||6),uy=ty(avgE||6);
+    ['udC1','udC2'].forEach(id=>{const el=document.getElementById(id);el.setAttribute('cx',ux);el.setAttribute('cy',uy);});
+    const ut=document.getElementById('udTx');ut.setAttribute('x',ux);ut.setAttribute('y',uy+4);
+    document.getElementById('userDot').style.opacity='1';
+    const yL=document.getElementById('youLabel');
+    yL.textContent=`Tu posición: exigencia ${avgE} · confianza ${avgC}`;
+    yL.classList.add('show');
+    document.getElementById('btnNext2').style.display='none';
+    document.getElementById('btnDL').style.display='inline-block';
+    revealStep++;
+  }
+}
+
+function goP2(){
+  const p=document.getElementById('p2');p.classList.add('show');
+  setTimeout(()=>p.scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+
+// ---- LOGO ----
+let logoData=null,logoRatio=36/16;
+function loadLogo(){
+  const img=document.getElementById('logoImg');
+  function ok(){img.style.display='block';try{logoRatio=img.naturalWidth/img.naturalHeight;const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/png');}catch(e){}}
+  if(img.complete&&img.naturalWidth>0)ok();else{img.onload=ok;}
+}
+
+// ---- PDF ----
+function common(doc,PW,PH){
+  doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(95,182,154);
+  doc.text('Estilos de liderazgo',12,20);
+  if(logoData){try{const lw=13*logoRatio;doc.addImage(logoData,'PNG',PW-12-lw,8,lw,13);}catch(e){}}
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(95,182,154);
+  doc.text('www.inner-key.com',PW/2,PH-9,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(150,150,150);
+  doc.text('Copyright de Innerkey Escuela Transpersonal de Coaching. No se permite su duplicación, transmisión ni reproducción, total o parcial.',PW/2,PH-6,{align:'center'});
+}
+
+function drawScale(doc,x,y,val){
+  for(let n=1;n<=10;n++){
+    const nx=x+(n-1)*9.5;
+    if(n===val){
+      doc.setFillColor(95,182,154);doc.circle(nx,y,3.2,'F');
+      doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(6.5);
+      doc.text(String(n),nx,y+1.2,{align:'center'});
+    }else{
+      doc.setTextColor(170,170,170);doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+      doc.text(String(n),nx,y+1.2,{align:'center'});
+    }
+  }
+}
+
+function drawP1(doc){
+  const PW=297,PH=210,M=10;common(doc,PW,PH);
+  const qw=PW-2*M-100;
+  function block(qs,key,title,startY){
+    doc.setFillColor(95,182,154);doc.rect(M,startY,PW-2*M,8,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+    doc.text(title,M+3,startY+5.5);doc.text('Medida',PW-M-50,startY+5.5,{align:'center'});
+    let y=startY+8;
+    qs.forEach((q,i)=>{
+      const rh=7;
+      doc.setDrawColor(240,240,240);doc.setLineWidth(0.2);doc.line(M,y+rh,PW-M,y+rh);
+      doc.setTextColor(80,80,80);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+      const ln=doc.splitTextToSize(q,qw);
+      ln.forEach((l,li)=>doc.text(l,M+3,y+4.5+li*3));
+      drawScale(doc,PW-M-95,y+4,scores[key][i]);
+      y+=rh;
+    });
+    const pLabel=key==='e'?'Promedio de exigencia':'Promedio de confianza';
+    const pVal=key==='e'?avgE:avgC;
+    doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);doc.rect(PW-M-22,y+1,18,7,'S');
+    doc.setTextColor(80,80,80);doc.setFont('helvetica','normal');doc.setFontSize(7.5);
+    doc.text(pLabel,PW-M-24,y+5.5,{align:'right'});
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(9);
+    doc.text(pVal?String(pVal):'',PW-M-13,y+5.8,{align:'center'});
+    return y+12;
+  }
+  const y2=block(exigQ,'e','Preguntas sobre el nivel de exigencia',28);
+  block(confQ,'c','Preguntas sobre el nivel de confianza',y2);
+}
+
+function drawP2(doc){
+  const PW=297,PH=210,M=12;common(doc,PW,PH);
+  const gx=50,gy=28,gw=210,gh=150;
+  const xmin=3,xmax=9,ymin=3,ymax=9;
+  function px(v){return gx+(v-xmin)/(xmax-xmin)*gw;}
+  function py(v){return gy+gh-(v-ymin)/(ymax-ymin)*gh;}
+  // grid
+  doc.setDrawColor(230,230,230);doc.setLineWidth(0.2);
+  for(let i=xmin;i<=xmax;i++){
+    doc.line(px(i),gy,px(i),gy+gh);
+    doc.setTextColor(170,170,170);doc.setFontSize(8);doc.setFont('helvetica','normal');
+    doc.text(String(i),px(i),gy+gh+6,{align:'center'});
+  }
+  for(let i=ymin;i<=ymax;i++){
+    doc.line(gx,py(i),gx+gw,py(i));
+    doc.setTextColor(170,170,170);doc.setFontSize(8);doc.setFont('helvetica','normal');
+    doc.text(String(i),gx-4,py(i)+1.5,{align:'right'});
+  }
+  // axes
+  doc.setDrawColor(95,182,154);doc.setLineWidth(1);
+  doc.line(gx,gy,gx,gy+gh);doc.line(gx,gy+gh,gx+gw,gy+gh);
+  // axis labels
+  doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(12);
+  doc.text('confianza',gx+gw/2,gy+gh+16,{align:'center'});
+  // rotated Y axis label
+  doc.text('exigencia',20,gy+gh/2,{angle:90});
+  // style bubbles - ALWAYS drawn
+  STYLES.forEach(function(st){
+    const cx=px(st.conf),cy=py(st.exig),r=16;
+    doc.setDrawColor(95,182,154);doc.setLineWidth(0.8);
+    doc.setFillColor(255,255,255);
+    doc.circle(cx,cy,r,'FD');
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text(st.name,cx,cy-2,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(120,120,120);
+    doc.text(st.sub,cx,cy+3,{align:'center'});
+  });
+  // user marker - ALWAYS drawn if averages exist
+  if(!avgE && !avgC) calcAvg();
+  if(avgE || avgC){
+    const ux=px(avgC||6),uy=py(avgE||6);
+    doc.setFillColor(95,182,154);doc.circle(ux,uy,5,'F');
+    doc.setDrawColor(95,182,154);doc.setLineWidth(0.6);doc.circle(ux,uy,8,'S');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(6);
+    doc.text('TÚ',ux,uy+1.2,{align:'center'});
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','normal');doc.setFontSize(8);
+    doc.text('Tu posición: exigencia '+avgE+' · confianza '+avgC,ux,uy+14,{align:'center'});
+  }
+}
+
+function exportPDF(){
+  try{
+    if(!avgE && !avgC) calcAvg();
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    drawP1(doc);
+    doc.addPage('a4','landscape');
+    drawP2(doc);
+    doc.save('estilos-de-liderazgo.pdf');
+  }catch(err){console.error(err);}
+}
+
+loadLogo();
+</script>
+</body>
+</html>

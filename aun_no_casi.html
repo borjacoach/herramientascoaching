@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:transparent;color:#222}
+.progress{position:sticky;top:0;z-index:100;height:3px;background:#f0f0f0}
+.progress-fill{height:100%;width:11.1%;background:#5fb69a;border-radius:0 3px 3px 0;transition:width 0.4s ease}
+.wrap{max-width:640px;margin:0 auto;padding:1rem 1.2rem 4rem}
+.header{display:flex;justify-content:center;align-items:center;position:relative;margin-bottom:14px;padding-bottom:16px;border-bottom:1px solid #ebebeb}
+.header h2{font-size:32px;font-weight:300;letter-spacing:0.5px;line-height:1.1;text-align:center}
+.logo-area{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.logo-area img{height:30px;display:none}
+
+.step{opacity:0;max-height:0;overflow:hidden;transition:opacity 0.4s ease;padding-top:0;border-top:1px solid transparent}
+.step.show{opacity:1;max-height:none;overflow:visible;padding-top:26px;margin-top:14px;border-top:1px solid #f2f2f2}
+.step:first-of-type.show{border-top:none;padding-top:6px;margin-top:0}
+.qnum{font-size:12px;font-weight:700;color:#5fb69a;letter-spacing:1px;margin-bottom:8px}
+.q{display:block;font-size:19px;font-weight:400;color:#2c3e50;margin-bottom:6px;line-height:1.3}
+.hint{font-size:13px;color:#999;margin-bottom:14px;line-height:1.55}
+textarea{width:100%;min-height:96px;resize:vertical;font-family:inherit;font-size:15px;padding:12px;border:1px solid #ebebeb;border-radius:10px;background:#fff;color:#222;line-height:1.5}
+input[type=text]{width:100%;font-family:inherit;font-size:15px;padding:12px;border:1px solid #ebebeb;border-radius:10px;background:#fff;color:#222}
+textarea:focus,input:focus{outline:none;border-color:#5fb69a}
+
+/* tarjetas visión / orientación */
+.compare{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.cmp{flex:1;min-width:230px;border:1px solid #ebebeb;border-radius:12px;padding:14px 16px}
+.cmp h4{font-size:13px;color:#5fb69a;font-weight:700;letter-spacing:0.5px;margin-bottom:8px;text-transform:uppercase}
+.cmp p{font-size:13px;color:#555;line-height:1.5}
+.cmp p b{color:#2c3e50}
+.cmp-foot{font-size:12.5px;color:#888;margin-bottom:14px;line-height:1.5}
+
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.chip{font-family:inherit;font-size:14px;padding:9px 20px;border:1px solid #d8d8d8;border-radius:999px;background:#fff;color:#555;cursor:pointer;transition:all 0.2s}
+.chip:hover{border-color:#5fb69a;color:#5fb69a}
+.chip.sel{background:#5fb69a;border-color:#5fb69a;color:#fff}
+
+.scale{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.dot{width:42px;height:42px;border:1px solid #d8d8d8;border-radius:50%;background:#fff;color:#555;font-size:15px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.dot:hover{border-color:#5fb69a;color:#5fb69a}
+.dot.sel{background:#5fb69a;border-color:#5fb69a;color:#fff}
+.scale-ends{display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-bottom:12px;padding:0 2px}
+
+.next,.download{font-family:inherit;font-size:15px;font-weight:500;padding:12px 34px;border:none;border-radius:999px;background:#5fb69a;color:#fff;cursor:pointer;margin-top:16px;transition:opacity 0.2s}
+.next:hover,.download:hover{opacity:0.88}
+.footer-note{font-size:12px;color:#bbb;text-align:center;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="progress"><div class="progress-fill" id="bar"></div></div>
+<div class="wrap">
+  <div class="header">
+    <h2>Aún no, pero casi</h2>
+    <div class="logo-area">
+      <img id="logoImg" src="images/logo_innerkey.png" alt="innerkey">
+    </div>
+  </div>
+
+  <!-- 1 -->
+  <div class="step show" id="s1">
+    <div class="qnum">01</div>
+    <label class="q">¿Cuál era mi objetivo?</label>
+    <p class="hint">Escríbelo tal y como lo formulaste en su momento.</p>
+    <textarea id="f1" placeholder="Mi objetivo era…"></textarea>
+    <button class="next" onclick="next(1)">Siguiente</button>
+  </div>
+
+  <!-- 2 -->
+  <div class="step" id="s2">
+    <div class="qnum">02</div>
+    <label class="q">¿Era un objetivo de visión o de orientación?</label>
+    <div class="compare">
+      <div class="cmp">
+        <h4>Objetivo de visión</h4>
+        <p>Foco en el <b>QUÉ</b>: priorizas calidad y aprendizaje, y lo lograrás antes o después.</p>
+      </div>
+      <div class="cmp">
+        <h4>Objetivo de orientación</h4>
+        <p>Foco en el <b>CUÁNDO</b>: priorizas el plazo, y lograrás cuanto se pueda en ese tiempo.</p>
+      </div>
+    </div>
+    <p class="cmp-foot">Elige qué es más importante para ti: el <b>QUÉ</b> o el <b>CUÁNDO</b>. Ambos no es realista, porque uno siempre estará al servicio del otro.</p>
+    <div class="chips" data-key="c2">
+      <button class="chip" onclick="pick(this,'c2')">Visión</button>
+      <button class="chip" onclick="pick(this,'c2')">Orientación</button>
+    </div>
+    <button class="next" onclick="next(2)">Siguiente</button>
+  </div>
+
+  <!-- 3 -->
+  <div class="step" id="s3">
+    <div class="qnum">03</div>
+    <label class="q">¿Cómo quería lograrlo?</label>
+    <p class="hint">El camino, el plan, los medios que te habías propuesto.</p>
+    <textarea id="f3" placeholder="Quería lograrlo…"></textarea>
+    <button class="next" onclick="next(3)">Siguiente</button>
+  </div>
+
+  <!-- 4 -->
+  <div class="step" id="s4">
+    <div class="qnum">04</div>
+    <label class="q">¿Cuándo quería lograrlo?</label>
+    <p class="hint">El plazo o la fecha que te habías marcado.</p>
+    <input type="text" id="f4" placeholder="Para…">
+    <button class="next" onclick="next(4)">Siguiente</button>
+  </div>
+
+  <!-- 5 -->
+  <div class="step" id="s5">
+    <div class="qnum">05</div>
+    <label class="q">¿Qué me hace creer que he fracasado, el cómo o el cuándo?</label>
+    <p class="hint">Recupera tu respuesta anterior: si tu objetivo era de <b>visión</b>, el foco estaba en el QUÉ y el plazo pesa menos (lo lograrás antes o después). Si era de <b>orientación</b>, el foco estaba en el CUÁNDO. Con eso en mente, ¿qué es lo que de verdad te hace sentir que has "fracasado": la forma (el cómo) o el plazo (el cuándo)?</p>
+    <div class="chips" data-key="c5">
+      <button class="chip" onclick="pick(this,'c5')">El cómo</button>
+      <button class="chip" onclick="pick(this,'c5')">El cuándo</button>
+    </div>
+    <textarea id="f5" placeholder="Lo que me hace creerlo es…"></textarea>
+    <button class="next" onclick="next(5)">Siguiente</button>
+  </div>
+
+  <!-- 6 -->
+  <div class="step" id="s6">
+    <div class="qnum">06</div>
+    <label class="q">¿Qué lección saco del 'aún no, pero casi'?</label>
+    <p class="hint">Lo que este punto del camino te ha enseñado sobre ti o sobre tu objetivo.</p>
+    <textarea id="f6" placeholder="La lección que saco es…"></textarea>
+    <button class="next" onclick="next(6)">Siguiente</button>
+  </div>
+
+  <!-- 7 -->
+  <div class="step" id="s7">
+    <div class="qnum">07</div>
+    <label class="q">¿Qué voy a ajustar en mi qué, cómo o cuándo?</label>
+    <p class="hint">El objetivo (qué), el camino (cómo) o el plazo (cuándo). ¿Qué cambias a partir de ahora?</p>
+    <textarea id="f7" placeholder="Voy a ajustar…"></textarea>
+    <button class="next" onclick="next(7)">Siguiente</button>
+  </div>
+
+  <!-- 8 -->
+  <div class="step" id="s8">
+    <div class="qnum">08</div>
+    <label class="q">¿Cuánto me comprometo a ir a por ello?</label>
+    <p class="hint">Del 1 al 10, ¿cuál es hoy tu nivel de compromiso real?</p>
+    <div class="scale" id="scale8"></div>
+    <div class="scale-ends"><span>Nada</span><span>Totalmente</span></div>
+    <button class="next" onclick="next(8)">Siguiente</button>
+  </div>
+
+  <!-- 9 -->
+  <div class="step" id="s9">
+    <div class="qnum">09</div>
+    <label class="q">¿Qué necesito para un 9 - 10?</label>
+    <p class="hint">¿Qué te falta para subir tu compromiso hasta arriba? Recursos, apoyos, decisiones…</p>
+    <textarea id="f9" placeholder="Para un 9-10 necesito…"></textarea>
+    <button class="download" onclick="exportPDF()">Descargar PDF</button>
+  </div>
+
+  <p class="footer-note">borjaarano.com</p>
+</div>
+
+<script>
+const TOTAL=9;
+const picks={c2:'',c5:''};
+let scaleVal8=null;
+
+document.getElementById('bar').style.width=(1/TOTAL*100)+'%';
+
+const sc=document.getElementById('scale8');
+for(let i=1;i<=10;i++){
+  const d=document.createElement('div');
+  d.className='dot';d.textContent=i;
+  d.onclick=()=>{sc.querySelectorAll('.dot').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');scaleVal8=i;};
+  sc.appendChild(d);
+}
+
+function pick(el,key){
+  const group=el.parentElement;
+  group.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  picks[key]=el.textContent;
+}
+
+function next(n){
+  const cur=document.getElementById('s'+(n+1));
+  if(cur){
+    cur.classList.add('show');
+    document.getElementById('bar').style.width=((n+1)/TOTAL*100)+'%';
+    setTimeout(()=>cur.scrollIntoView({behavior:'smooth',block:'start'}),60);
+  }
+}
+
+// ---------- LOGO (solo imagen alojada en images/) ----------
+let logoData=null,logoRatio=36/16;
+function loadLogo(){
+  const img=document.getElementById('logoImg');
+  function ok(){
+    img.style.display='block';
+    try{
+      logoRatio=img.naturalWidth/img.naturalHeight;
+      const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
+      c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/png');
+    }catch(e){}
+  }
+  if(img.complete&&img.naturalWidth>0)ok();
+  else{img.onload=ok;}
+}
+
+// ---------- PDF ----------
+function val(id){const e=document.getElementById(id);return e&&e.value.trim()?e.value.trim():'';}
+function combine(choice,note){
+  if(choice&&note)return choice+' — '+note;
+  return choice||note||'';
+}
+
+function exportPDF(){
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({unit:'mm',format:'a4'});
+    const PW=210,PH=297,LM=20,RM=20;
+    const mw=PW-LM-RM;
+    const LH=7.6;            // alto de renglón
+    const GREEN=[95,182,154];
+    const NAVY=[44,62,80];
+
+    doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+
+    // cabecera
+    if(logoData){try{const lw=15*logoRatio;doc.addImage(logoData,'PNG',PW-RM-lw,14,lw,15);}catch(e){}}
+    doc.setFont('helvetica','normal');doc.setFontSize(27);doc.setTextColor(...NAVY);
+    doc.text('Aún no, pero casi',LM,24);
+    doc.setFontSize(9);doc.setTextColor(160,160,160);
+    doc.text(new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}),LM,30.5);
+    // filete verde
+    doc.setDrawColor(...GREEN);doc.setLineWidth(1);doc.line(LM,34.5,LM+24,34.5);
+
+    const fields=[
+      {n:'01',label:'¿Cuál era mi objetivo?',v:val('f1')},
+      {n:'02',label:'¿Era un objetivo de visión o de orientación?',v:picks.c2},
+      {n:'03',label:'¿Cómo quería lograrlo?',v:val('f3')},
+      {n:'04',label:'¿Cuándo quería lograrlo?',v:val('f4')},
+      {n:'05',label:'¿Qué me hace creer que he fracasado, el cómo o el cuándo?',v:combine(picks.c5,val('f5'))},
+      {n:'06',label:"¿Qué lección saco del 'aún no, pero casi'?",v:val('f6')},
+      {n:'07',label:'¿Qué voy a ajustar en mi qué, cómo o cuándo?',v:val('f7')},
+      {n:'08',label:'¿Cuánto me comprometo a ir a por ello?',v:scaleVal8?(scaleVal8+' / 10'):''},
+      {n:'09',label:'¿Qué necesito para un 9 - 10?',v:val('f9')}
+    ];
+
+    let yy=46;
+    fields.forEach(f=>{
+      if(yy>PH-(LH*2+22)){doc.addPage();yy=24;}
+
+      // chip numerado verde
+      doc.setFillColor(...GREEN);doc.roundedRect(LM,yy-5,8.5,6.5,1.6,1.6,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(255,255,255);
+      doc.text(f.n,LM+4.25,yy-0.5,{align:'center'});
+
+      // pregunta
+      doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...NAVY);
+      const qLines=doc.splitTextToSize(f.label,mw-12);
+      qLines.forEach((ln,i)=>doc.text(ln,LM+12,yy+(i*5)));
+      yy+=qLines.length*5+5;
+
+      // respuesta sobre renglones
+      doc.setFont('helvetica','normal');doc.setFontSize(10.5);doc.setTextColor(70,70,70);
+      const aLines=f.v?doc.splitTextToSize(f.v,mw-2):[];
+      const rows=Math.max(aLines.length,1);
+      for(let r=0;r<rows;r++){
+        if(yy>PH-16){doc.addPage();yy=24;}
+        if(aLines[r])doc.text(aLines[r],LM,yy-1.8);
+        doc.setDrawColor(228,228,228);doc.setLineWidth(0.25);
+        doc.line(LM,yy,PW-RM,yy);
+        yy+=LH;
+      }
+      yy+=7.5;
+    });
+
+    // pie en todas las páginas
+    const pages=doc.internal.getNumberOfPages();
+    for(let p=1;p<=pages;p++){
+      doc.setPage(p);
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(180,180,180);
+      doc.text('borjaarano.com',PW-RM,PH-10,{align:'right'});
+    }
+
+    doc.save('aun-no-pero-casi.pdf');
+  }catch(err){console.error(err);}
+}
+
+loadLogo();
+</script>
+</body>
+</html>

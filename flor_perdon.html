@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:transparent;color:#222}
+.wrap{max-width:1000px;margin:0 auto;padding:0.75rem 1rem 2rem}
+.header{display:flex;justify-content:center;align-items:center;position:relative;margin-bottom:8px}
+.header h2{font-size:38px;font-weight:300;letter-spacing:0.5px}
+.logo-area{position:absolute;right:0;top:50%;transform:translateY(-50%)}
+.logo-area img{height:34px;display:none}
+.logo-text{display:none;flex-direction:column;align-items:flex-end;line-height:1.15}
+.lt-main{font-size:15px}.lt-inner{font-weight:700}.lt-key{font-weight:400;color:#5fb69a}
+.lt-main sup{font-size:7px;color:#aaa}.lt-sub{font-size:7px;color:#aaa;text-align:right;margin-top:1px}
+.intro{text-align:center;font-size:13px;color:#888;margin-bottom:32px;max-width:600px;margin-left:auto;margin-right:auto;line-height:1.5}
+
+.flower{position:relative;width:100%;max-width:940px;margin:0 auto;aspect-ratio:1.5/1}
+.petal{position:absolute;width:35%;height:43%;display:flex;flex-direction:column;padding:16px 26px;border-radius:50%;justify-content:flex-start;background:#fff}
+.petal-title{font-size:13px;font-weight:600;text-align:center;margin-bottom:6px;line-height:1.2}
+.petal textarea{width:100%;flex:1;border:none;background:transparent;resize:none;outline:none;font-family:inherit;font-size:16px;text-align:center;color:#444;line-height:1.4}
+.petal textarea::placeholder{color:#ccc;font-style:italic;font-size:13px}
+
+.petal-thorn{border:1.5px solid #b5b5b5}
+.petal-thorn .petal-title{color:#888}
+.petal-lib{border:2px solid #5fb69a}
+.petal-lib .petal-title{color:#3d8c73}
+
+/* top row thorns - extremes lower, center higher for round shape */
+.p-tl{top:7%;left:6%}
+.p-tc{top:0;left:32.5%;z-index:2}
+.p-tr{top:7%;right:6%}
+/* bottom row liberation - extremes higher, center lower */
+.p-bl{bottom:7%;left:6%}
+.p-bc{bottom:0;left:32.5%;z-index:2;justify-content:flex-end;padding-bottom:34px}
+.p-bc .petal-title{margin-bottom:6px}
+.p-bc textarea{flex:none;min-height:48px}
+.p-br{bottom:7%;right:6%}
+
+.center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30%;height:42%;border:3px solid #5fb69a;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;z-index:10}
+.c-dano{width:86%;text-align:center;margin-bottom:6px}
+.c-dano-label{font-size:13px;font-weight:600;color:#3d8c73;margin-bottom:4px}
+.c-dano textarea{width:100%;border:none;background:rgba(95,182,154,0.1);border-radius:10px;resize:none;outline:none;font-family:inherit;font-size:16px;text-align:center;color:#333;padding:7px;min-height:46px;line-height:1.35}
+.c-decreto{width:92%;text-align:center;margin-top:4px}
+.c-decreto-label{font-size:14px;font-weight:700;color:#666;letter-spacing:1px;margin-bottom:4px}
+.c-decreto textarea{width:100%;border:none;border-bottom:1.5px solid #ddd;background:transparent;resize:none;outline:none;font-family:inherit;font-size:15px;text-align:center;color:#333;padding:4px;min-height:32px;font-style:italic;line-height:1.35}
+.center textarea::placeholder{color:#ccc;font-style:italic;font-size:13px}
+
+.actions{text-align:center;margin-top:56px}
+.dl-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 30px;background:#5fb69a;color:#fff;border:none;border-radius:24px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s}
+.dl-btn:hover{opacity:0.9}
+
+@media(max-width:680px){
+  .flower{aspect-ratio:auto;max-width:360px;display:flex;flex-direction:column}
+  .petal,.center{position:relative;transform:none;width:100%;height:auto;min-height:130px;border-radius:18px;margin-bottom:10px;inset:auto!important;top:auto!important;left:auto!important;right:auto!important;bottom:auto!important}
+  .petal textarea{min-height:80px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h2>La flor del perdón</h2>
+    <div class="logo-area">
+      <img id="logoImg" src="images/logo_innerkey.png" alt="Innerkey">
+      <div id="logoText" class="logo-text">
+        <span class="lt-main"><span class="lt-inner">inner</span><span class="lt-key">key</span><sup>®</sup></span>
+        <span class="lt-sub">Escuela Transpersonal<br>de Coaching</span>
+      </div>
+    </div>
+  </div>
+  <p class="intro">Los pétalos superiores (espinas) representan lo que nos tiene prisioneros. Los inferiores (liberación) muestran cómo queremos ver y sentir este asunto a partir de ahora.</p>
+
+  <div class="flower" id="flower">
+    <div class="petal petal-thorn p-tl"><div class="petal-title">Mi juicio</div><textarea id="t_juicio" placeholder="¿Cómo la describes? (máx. 3, cortos)"></textarea></div>
+    <div class="petal petal-thorn p-tc"><div class="petal-title">¿En quién me convierto con el odio?</div><textarea id="t_odio" placeholder="¿En quién te convierte? (máx. 3)"></textarea></div>
+    <div class="petal petal-thorn p-tr"><div class="petal-title">Beneficios de NO perdonar</div><textarea id="t_nobenef" placeholder="¿Qué te aporta no perdonar? (máx. 3)"></textarea></div>
+
+    <div class="center">
+      <div class="c-dano">
+        <div class="c-dano-label">Daño</div>
+        <textarea id="c_dano" placeholder="Una frase corta y concisa"></textarea>
+      </div>
+      <div class="c-decreto">
+        <div class="c-decreto-label">DECRETO</div>
+        <textarea id="c_decreto" placeholder="Mantra (4 P's)"></textarea>
+      </div>
+    </div>
+
+    <div class="petal petal-lib p-bl"><div class="petal-title">Mi nueva visión</div><textarea id="l_vision" placeholder="¿Cómo la describes ahora? (máx. 3)"></textarea></div>
+    <div class="petal petal-lib p-bc"><div class="petal-title">¿En quién me convierto con el perdón?</div><textarea id="l_perdon" placeholder="¿Quién eres al perdonar? (máx. 3)"></textarea></div>
+    <div class="petal petal-lib p-br"><div class="petal-title">Beneficios de SÍ perdonar</div><textarea id="l_sibenef" placeholder="¿Qué te aporta perdonar? (máx. 3)"></textarea></div>
+  </div>
+
+  <div class="actions">
+    <button class="dl-btn" onclick="exportPDF()">Descargar PDF</button>
+  </div>
+</div>
+
+<script>
+let logoData=null;
+function loadLogo(){
+  const img=document.getElementById('logoImg');
+  function ok(){img.style.display='block';try{const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/png');}catch(e){}}
+  if(img.complete&&img.naturalWidth>0)ok();
+  else{img.onload=ok;img.onerror=()=>{document.getElementById('logoText').style.display='flex';};}
+}
+function val(id){return document.getElementById(id).value.trim();}
+function ellipse(doc,cx,cy,rx,ry,style){doc.ellipse(cx,cy,rx,ry,style);}
+
+async function exportPDF(){
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    const PW=297,PH=210;
+    doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+
+    if(logoData){try{doc.addImage(logoData,'PNG',PW-54,6,40,18);}catch(e){}}
+
+    doc.setFontSize(20);doc.setTextColor(95,182,154);doc.setFont('helvetica','normal');
+    doc.text('La flor del perdón',16,18);
+    doc.setFontSize(8);doc.setTextColor(160,160,160);
+    doc.text(new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}),16,24);
+
+    const cx=PW/2, cy=PH/2+8;
+    const prx=46, pry=30;
+    const dxOut=50, dyOut=32;
+
+    const thorns=[
+      {x:cx-dxOut,y:cy-dyOut,t:'Mi juicio',v:val('t_juicio')},
+      {x:cx,y:cy-dyOut-4,t:'¿En quién me convierto con el odio?',v:val('t_odio')},
+      {x:cx+dxOut,y:cy-dyOut,t:'Beneficios de NO perdonar',v:val('t_nobenef')}
+    ];
+    const libs=[
+      {x:cx-dxOut,y:cy+dyOut,t:'Mi nueva visión',v:val('l_vision')},
+      {x:cx,y:cy+dyOut+4,t:'¿En quién me convierto con el perdón?',v:val('l_perdon')},
+      {x:cx+dxOut,y:cy+dyOut,t:'Beneficios de SÍ perdonar',v:val('l_sibenef')}
+    ];
+
+    doc.setLineWidth(0.3);
+    thorns.forEach(p=>{doc.setDrawColor(150,150,150);ellipse(doc,p.x,p.y,prx,pry,'S');});
+    libs.forEach(p=>{doc.setDrawColor(95,182,154);doc.setLineWidth(0.6);ellipse(doc,p.x,p.y,prx,pry,'S');});
+
+    doc.setDrawColor(95,182,154);doc.setLineWidth(1);doc.setFillColor(255,255,255);
+    ellipse(doc,cx,cy,40,30,'FD');
+
+    function drawPetal(p,titleColor){
+      doc.setFontSize(8.5);doc.setFont('helvetica','bold');
+      doc.setTextColor(titleColor[0],titleColor[1],titleColor[2]);
+      const tl=doc.splitTextToSize(p.t,prx*1.3);
+      tl.forEach((ln,i)=>doc.text(ln,p.x,p.y-12+i*3.6,{align:'center'}));
+      if(p.v){
+        doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(70,70,70);
+        const bl=doc.splitTextToSize(p.v,prx*1.3);
+        const startY=p.y-12+tl.length*3.6+3;
+        bl.slice(0,6).forEach((ln,i)=>doc.text(ln,p.x,startY+i*3.6,{align:'center'}));
+      }
+    }
+    thorns.forEach(p=>drawPetal(p,[120,120,120]));
+    libs.forEach(p=>drawPetal(p,[61,140,115]));
+
+    doc.setFontSize(9);doc.setFont('helvetica','bold');doc.setTextColor(61,140,115);
+    doc.text('Daño',cx,cy-16,{align:'center'});
+    if(val('c_dano')){
+      doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(50,50,50);
+      const dl=doc.splitTextToSize(val('c_dano'),60);
+      dl.slice(0,3).forEach((ln,i)=>doc.text(ln,cx,cy-10+i*3.6,{align:'center'}));
+    }
+    doc.setFontSize(11);doc.setFont('helvetica','bold');doc.setTextColor(110,110,110);
+    doc.text('DECRETO',cx,cy+6,{align:'center'});
+    if(val('c_decreto')){
+      doc.setFontSize(8);doc.setFont('helvetica','italic');doc.setTextColor(50,50,50);
+      const cl=doc.splitTextToSize(val('c_decreto'),62);
+      cl.slice(0,3).forEach((ln,i)=>doc.text(ln,cx,cy+12+i*3.6,{align:'center'}));
+    }
+
+    doc.setFontSize(8);doc.setTextColor(160,160,160);
+    doc.text('borjaarano.com',PW-14,PH-8,{align:'right'});
+    doc.save('flor-del-perdon.pdf');
+  }catch(err){console.error(err);}
+}
+loadLogo();
+</script>
+</body>
+</html>

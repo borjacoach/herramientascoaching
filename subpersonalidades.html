@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:transparent;color:#222}
+.wrap{max-width:1180px;margin:0 auto;padding:1rem 1.2rem 4rem}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #ebebeb}
+.header h2{font-size:32px;font-weight:300;color:#222;letter-spacing:0.5px}
+.header img{height:30px;display:none}
+
+.note-oval{display:inline-block;background:#5fb69a;color:#fff;border-radius:999px;padding:8px 22px;font-size:13px;margin:2px 0 4px;text-align:center;line-height:1.3}
+.note-oval b{font-weight:700}
+
+/* página 1 — hexágono */
+.hexwrap{position:relative;width:100%;max-width:600px;height:480px;margin:18px auto 0}
+.hexwrap svg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:380px;height:342px}
+.nm{position:absolute;width:142px;transform:translate(-50%,-50%);text-align:center;font-family:inherit;font-size:14px;font-weight:600;color:#2c3e50;border:1px solid #d8d8d8;border-radius:8px;padding:8px 6px}
+.nm:focus{outline:none;border-color:#5fb69a}
+.nm::placeholder{color:#bbb;font-weight:400}
+.n0{left:50%;top:5%}.n1{left:86%;top:29%}.n2{left:86%;top:71%}.n3{left:50%;top:95%}.n4{left:14%;top:71%}.n5{left:14%;top:29%}
+
+.next{font-family:inherit;font-size:15px;font-weight:500;padding:12px 34px;border:none;border-radius:999px;background:#5fb69a;color:#fff;cursor:pointer;transition:opacity 0.2s}
+.download{font-family:inherit;font-size:15px;font-weight:500;padding:12px 34px;border:1.5px solid #5fb69a;border-radius:999px;background:#fff;color:#5fb69a;cursor:pointer;transition:opacity 0.2s}
+.next:hover,.download:hover{opacity:0.85}
+.nextwrap{margin-top:26px}
+.btnrow{margin-top:26px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+.page{display:none;margin-top:36px;padding-top:24px;border-top:1px solid #ebebeb}
+.page.show{display:block}
+.page h3{font-size:22px;font-weight:300;color:#2c3e50;margin-bottom:16px}
+
+/* tabla describir */
+.t2{width:100%;border-collapse:collapse;table-layout:fixed}
+.t2 th{background:#5fb69a;color:#fff;font-size:12.5px;font-weight:700;text-align:center;padding:9px 8px;border:1px solid #fff;line-height:1.25}
+.t2 td{border:1px solid #e3e3e3;padding:8px;vertical-align:top}
+.t2 .nmcell{width:16%;font-weight:600;color:#2c3e50;font-size:13.5px;text-align:center;background:#fafafa}
+.t2 textarea{width:100%;min-height:110px;resize:vertical;border:none;font-family:inherit;font-size:13px;color:#333;line-height:1.45;background:transparent}
+.t2 textarea:focus{outline:none}
+
+/* tabla peso */
+.scrollx{overflow-x:auto;padding-bottom:6px}
+.legend{font-size:12px;color:#777;margin:0 0 14px;line-height:1.5}
+.legend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:middle;margin:0 3px 0 8px}
+.t3{border-collapse:collapse;font-size:12px;width:100%;min-width:880px}
+.t3 th,.t3 td{border:1px solid #dcdcdc;text-align:center}
+.t3 thead th{background:#5fb69a;color:#fff;font-weight:700;padding:5px 4px;border-color:#fff;font-size:11.5px}
+.t3 thead .sub2{font-weight:400;font-size:10px;padding:3px 2px;background:#7cc4ac}
+.t3 .nmcol{width:120px;text-align:left;padding:6px 8px;font-weight:600;color:#2c3e50;background:#fafafa}
+.t3 td.cell{width:46px;height:73px;padding:0}
+.t3 td.des{background:#e7f4ef}
+.t3 .pcell{width:100%;height:73px;border:none;background:transparent;text-align:center;font-family:inherit;font-size:15px;font-weight:600;color:#2c3e50;cursor:pointer;appearance:none;-webkit-appearance:none}
+.t3 .pcell:focus{outline:1px solid #5fb69a}
+.t3 td.suma{font-weight:700;color:#2c3e50;background:#f3f3f3;width:46px;font-size:14px}
+.t3 td.suma.des{background:#d7ece4}
+.facin{width:92%;border:none;background:rgba(255,255,255,0.2);color:#fff;text-align:center;font-family:inherit;font-size:11.5px;font-weight:700;border-radius:4px;padding:3px}
+.facin:focus{outline:none;background:rgba(255,255,255,0.35)}
+.facin::placeholder{color:rgba(255,255,255,0.7)}
+
+.footer-note{font-size:12px;color:#bbb;text-align:center;margin-top:34px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h2>Subpersonalidades</h2>
+    <img id="logoImg" src="images/logo_innerkey.png" alt="innerkey">
+  </div>
+
+  <!-- PÁGINA 1 -->
+  <div id="p1">
+    <div class="note-oval">El nombre <b>¡HA DE GUSTARLE!</b></div>
+    <div class="hexwrap">
+      <svg viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="200,18 360,108 360,252 200,342 40,252 40,108" fill="none" stroke="#5fb69a" stroke-width="3"/>
+        <circle cx="200" cy="180" r="80" fill="none" stroke="#5fb69a" stroke-width="1"/>
+        <text x="200" y="172" text-anchor="middle" font-size="24" fill="#5fb69a" font-weight="300">YO</text>
+        <text x="200" y="200" text-anchor="middle" font-size="24" fill="#5fb69a" font-weight="300">observador</text>
+      </svg>
+      <input class="nm n0" id="name0" placeholder="Subpersonalidad 1" oninput="subp[0].name=this.value">
+      <input class="nm n1" id="name1" placeholder="Subpersonalidad 2" oninput="subp[1].name=this.value">
+      <input class="nm n2" id="name2" placeholder="Subpersonalidad 3" oninput="subp[2].name=this.value">
+      <input class="nm n3" id="name3" placeholder="Subpersonalidad 4" oninput="subp[3].name=this.value">
+      <input class="nm n4" id="name4" placeholder="Subpersonalidad 5" oninput="subp[4].name=this.value">
+      <input class="nm n5" id="name5" placeholder="Subpersonalidad 6" oninput="subp[5].name=this.value">
+    </div>
+    <div class="nextwrap"><button class="next" onclick="goP2()">Siguiente</button></div>
+  </div>
+
+  <!-- PÁGINA 2 -->
+  <div class="page" id="p2">
+    <h3>Paso 2 · Describir en detalle</h3>
+    <table class="t2">
+      <thead><tr>
+        <th>Subpersonalidad</th>
+        <th>¿Qué edad tiene?</th>
+        <th>¿Cómo es su carácter?</th>
+        <th>¿Qué te pide?</th>
+        <th>¿En qué te ayuda?</th>
+        <th>¿En qué te limita?</th>
+      </tr></thead>
+      <tbody id="p2body"></tbody>
+    </table>
+    <div class="nextwrap"><button class="next" onclick="goP3()">Siguiente</button></div>
+  </div>
+
+  <!-- PÁGINA 3 -->
+  <div class="page" id="p3">
+    <h3>Paso 3 · Descubrir su peso</h3>
+    <p class="legend"><span class="sw" style="background:#fff;border:1px solid #ccc"></span> Celdas blancas: realidad actual <span class="sw" style="background:#e7f4ef"></span> Celdas verdes: situación deseada</p>
+    <div class="scrollx">
+      <table class="t3" id="t3"></table>
+    </div>
+    <div class="btnrow">
+      <button class="next" onclick="sumAll()">Suma</button>
+      <button class="download" onclick="exportPDF()">Descargar PDF</button>
+    </div>
+  </div>
+
+  <p class="footer-note">borjaarano.com</p>
+</div>
+
+<script>
+const subp=[0,1,2,3,4,5].map(()=>({name:'',edad:'',caracter:'',pide:'',ayuda:'',limita:''}));
+const FACETAS=['Trabajo','Familia','Pareja','Amigos','Hobby','Soledad','',''];
+const peso=subp.map(()=>FACETAS.map(()=>({r:0,d:0})));
+const FIELDS=[['edad'],['caracter'],['pide'],['ayuda'],['limita']];
+
+function nameOf(i){return subp[i].name.trim()||('Subpersonalidad '+(i+1));}
+
+// ---- PÁGINA 2 ----
+function goP2(){
+  let rows='';
+  subp.forEach((s,i)=>{
+    let tds='';
+    FIELDS.forEach(f=>{tds+=`<td><textarea oninput="subp[${i}].${f[0]}=this.value">${s[f[0]]}</textarea></td>`;});
+    rows+=`<tr><td class="nmcell">${nameOf(i)}</td>${tds}</tr>`;
+  });
+  document.getElementById('p2body').innerHTML=rows;
+  const p=document.getElementById('p2');p.classList.add('show');
+  setTimeout(()=>p.scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+
+// ---- PÁGINA 3 ----
+function goP3(){
+  buildT3();
+  const p=document.getElementById('p3');p.classList.add('show');
+  setTimeout(()=>p.scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+function buildT3(){
+  const nf=FACETAS.length;
+  let h1='<tr><th rowspan="2" class="nmcol" style="color:#fff;background:#5fb69a">Subpersonalidad</th>';
+  FACETAS.forEach((f,fi)=>{
+    if(f===''||fi>=6){h1+=`<th colspan="2"><input class="facin" id="fac${fi}" value="${FACETAS[fi]}" oninput="FACETAS[${fi}]=this.value" placeholder="Faceta"></th>`;}
+    else{h1+=`<th colspan="2">${f}</th>`;}
+  });
+  h1+='<th colspan="2">Suma</th></tr>';
+  let h2='<tr>';
+  for(let k=0;k<nf+1;k++){h2+='<th class="sub2">actual</th><th class="sub2" style="background:#6bbd9f">deseada</th>';}
+  h2+='</tr>';
+  let body='';
+  subp.forEach((s,r)=>{
+    let tds='';
+    FACETAS.forEach((f,fi)=>{
+      tds+=`<td class="cell">${selHTML(r,fi,'r')}</td><td class="cell des">${selHTML(r,fi,'d')}</td>`;
+    });
+    tds+=`<td class="suma" id="sr${r}"></td><td class="suma des" id="sd${r}"></td>`;
+    body+=`<tr><td class="nmcol">${nameOf(r)}</td>${tds}</tr>`;
+  });
+  document.getElementById('t3').innerHTML='<thead>'+h1+h2+'</thead><tbody>'+body+'</tbody>';
+  subp.forEach((s,r)=>{FACETAS.forEach((f,fi)=>{['r','d'].forEach(t=>{const el=document.getElementById(`p_${r}_${fi}_${t}`);if(el)el.value=String(peso[r][fi][t]);});});});
+}
+function selHTML(r,fi,t){
+  return `<select class="pcell" id="p_${r}_${fi}_${t}" onchange="setPeso(${r},${fi},'${t}',this.value)"><option value="0"></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select>`;
+}
+function setPeso(r,fi,t,val){
+  val=parseInt(val)||0;
+  if(val>0){
+    // unicidad por columna (faceta+tipo): solo un 3, un 2, un 1
+    subp.forEach((s,j)=>{if(j!==r&&peso[j][fi][t]===val){peso[j][fi][t]=0;const el=document.getElementById(`p_${j}_${fi}_${t}`);if(el)el.value='0';}});
+  }
+  peso[r][fi][t]=val;
+}
+function sumAll(){
+  subp.forEach((s,r)=>{
+    let sr=0,sd=0;
+    FACETAS.forEach((f,fi)=>{sr+=peso[r][fi].r;sd+=peso[r][fi].d;});
+    const a=document.getElementById('sr'+r),b=document.getElementById('sd'+r);
+    if(a)a.textContent=sr;if(b)b.textContent=sd;
+  });
+}
+
+// ---------- LOGO ----------
+let logoData=null,logoRatio=36/16;
+function loadLogo(){
+  const img=document.getElementById('logoImg');
+  function ok(){img.style.display='block';try{logoRatio=img.naturalWidth/img.naturalHeight;const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;c.getContext('2d').drawImage(img,0,0);logoData=c.toDataURL('image/png');}catch(e){}}
+  if(img.complete&&img.naturalWidth>0)ok();else{img.onload=ok;}
+}
+
+// ---------- PDF ----------
+function common(doc,PW,PH){
+  doc.setFillColor(255,255,255);doc.rect(0,0,PW,PH,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(22);doc.setTextColor(95,182,154);
+  doc.text('Subpersonalidades',12,20);
+  if(logoData){try{const lw=13*logoRatio;doc.addImage(logoData,'PNG',PW-12-lw,8,lw,13);}catch(e){}}
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(95,182,154);
+  doc.text('www.inner-key.com',PW/2,PH-9,{align:'center'});
+  doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(150,150,150);
+  doc.text('Copyright de Innerkey Escuela Transpersonal de Coaching. No se permite su duplicación, transmisión ni reproducción, total o parcial.',PW/2,PH-6,{align:'center'});
+}
+
+function drawP1(doc){
+  const PW=297,PH=210;common(doc,PW,PH);
+  const cx=PW/2,cy=112,R=60;
+  const ang=[-90,-30,30,90,150,210].map(a=>a*Math.PI/180);
+  const vx=ang.map(a=>cx+R*Math.cos(a)),vy=ang.map(a=>cy+R*Math.sin(a));
+  doc.setDrawColor(95,182,154);doc.setLineWidth(1.1);
+  for(let i=0;i<6;i++){const j=(i+1)%6;doc.line(vx[i],vy[i],vx[j],vy[j]);}
+  doc.setLineWidth(0.4);doc.circle(cx,cy,33,'S');
+  doc.setTextColor(95,182,154);doc.setFont('helvetica','normal');doc.setFontSize(15);
+  doc.text('YO',cx,cy-2,{align:'center'});doc.text('observador',cx,cy+7,{align:'center'});
+  doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(44,62,80);
+  const put=(i,x,y,al)=>{doc.text(nameOf(i),x,y,{align:al});};
+  put(0,cx,vy[0]-6,'center');
+  put(1,vx[1]+6,vy[1]+1,'left');
+  put(2,vx[2]+6,vy[2]+1,'left');
+  put(3,cx,vy[3]+9,'center');
+  put(4,vx[4]-6,vy[4]+1,'right');
+  put(5,vx[5]-6,vy[5]+1,'right');
+}
+
+function drawP2(doc){
+  const PW=297,PH=210,M=10;common(doc,PW,PH);
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(44,62,80);
+  doc.text('Paso 2 · Describir en detalle cada subpersonalidad',M,28);
+  const heads=['Subpersonalidad','¿Qué edad tiene?','¿Cómo es su carácter?','¿Qué te pide?','¿En qué te ayuda?','¿En qué te limita?'];
+  const w0=40,wr=(PW-2*M-w0)/5;
+  const cols=[{x:M,w:w0}];for(let k=0;k<5;k++)cols.push({x:M+w0+k*wr,w:wr});
+  const top=33,hh=11;
+  doc.setFillColor(95,182,154);cols.forEach(c=>doc.rect(c.x,top,c.w,hh,'F'));
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8.5);
+  heads.forEach((h,k)=>{const c=cols[k];const ln=doc.splitTextToSize(h,c.w-4);let ty=top+(hh-ln.length*3.6)/2+3;ln.forEach((l,li)=>doc.text(l,c.x+c.w/2,ty+li*3.6,{align:'center'}));});
+  let y=top+hh;const lineH=4,pad=2.6;
+  subp.forEach((s,i)=>{
+    const cells=[s.edad,s.caracter,s.pide,s.ayuda,s.limita].map((v,k)=>doc.splitTextToSize(v||'',cols[k+1].w-2*pad));
+    const txtH=Math.max(1,...cells.map(c=>c.length))*lineH+2*pad;
+    const rowH=Math.max(txtH,24);
+    doc.setDrawColor(200,200,200);doc.setLineWidth(0.3);cols.forEach(c=>doc.rect(c.x,y,c.w,rowH));
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(9.5);
+    const nm=doc.splitTextToSize(nameOf(i),cols[0].w-2*pad);
+    nm.forEach((l,li)=>doc.text(l,cols[0].x+cols[0].w/2,y+rowH/2-((nm.length-1)*2.2)+li*4.4,{align:'center'}));
+    doc.setTextColor(60,60,60);doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    cells.forEach((cl,k)=>{let ty=y+pad+2.6;cl.forEach(l=>{doc.text(l,cols[k+1].x+pad,ty);ty+=lineH;});});
+    y+=rowH;
+  });
+}
+
+function drawP3(doc){
+  const PW=297,PH=210,M=7;common(doc,PW,PH);
+  doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(44,62,80);
+  doc.text('Paso 3 · Descubrir su peso (blanco: realidad actual · verde: situación deseada)',M,26);
+  const nf=FACETAS.length;
+  const nameW=28;
+  const sub=(PW-2*M-nameW)/(nf*2+2);
+  const top=30,h1=8,h2=5;
+  let x=M;
+  doc.setFillColor(95,182,154);doc.rect(x,top,nameW,h1+h2,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(7);
+  doc.text('Subpersona-',x+nameW/2,top+5.5,{align:'center'});doc.text('lidad',x+nameW/2,top+9,{align:'center'});
+  x+=nameW;
+  const labels=FACETAS.map((f,i)=>f||('Faceta '+(i-5)));labels.push('Suma');
+  for(let g=0;g<nf+1;g++){
+    const gw=sub*2;
+    doc.setFillColor(95,182,154);doc.rect(x,top,gw,h1,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(7);
+    const ln=doc.splitTextToSize(labels[g],gw-2);
+    let ty=top+(h1-ln.length*2.8)/2+2.4;ln.forEach((l,li)=>doc.text(l,x+gw/2,ty+li*2.8,{align:'center'}));
+    doc.setFillColor(124,196,172);doc.rect(x,top+h1,sub,h2,'F');
+    doc.setFillColor(107,189,159);doc.rect(x+sub,top+h1,sub,h2,'F');
+    doc.setFontSize(5.5);doc.setFont('helvetica','normal');doc.setTextColor(255,255,255);
+    doc.text('actual',x+sub/2,top+h1+3.4,{align:'center'});
+    doc.text('deseada',x+sub+sub/2,top+h1+3.4,{align:'center'});
+    x+=gw;
+  }
+  let y=top+h1+h2;
+  const rowH=(PH-12-y)/subp.length;
+  doc.setLineWidth(0.25);
+  subp.forEach((s,r)=>{
+    let cx=M;
+    doc.setDrawColor(210,210,210);doc.setFillColor(250,250,250);doc.rect(cx,y,nameW,rowH,'FD');
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(6.8);
+    const nm=doc.splitTextToSize(nameOf(r),nameW-2);
+    nm.forEach((l,li)=>doc.text(l,cx+1.5,y+rowH/2-((nm.length-1)*2)+li*3.4));
+    cx+=nameW;
+    let sr=0,sd=0;
+    FACETAS.forEach((f,fi)=>{
+      const vr=peso[r][fi].r,vd=peso[r][fi].d;sr+=vr;sd+=vd;
+      doc.setDrawColor(215,215,215);doc.setFillColor(255,255,255);doc.rect(cx,y,sub,rowH,'FD');
+      doc.setFillColor(231,244,239);doc.rect(cx+sub,y,sub,rowH,'FD');
+      doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(11);
+      if(vr)doc.text(String(vr),cx+sub/2,y+rowH/2+2,{align:'center'});
+      if(vd)doc.text(String(vd),cx+sub+sub/2,y+rowH/2+2,{align:'center'});
+      cx+=sub*2;
+    });
+    doc.setFillColor(243,243,243);doc.rect(cx,y,sub,rowH,'FD');
+    doc.setFillColor(215,236,228);doc.rect(cx+sub,y,sub,rowH,'FD');
+    doc.setTextColor(44,62,80);doc.setFont('helvetica','bold');doc.setFontSize(11);
+    doc.text(String(sr),cx+sub/2,y+rowH/2+2,{align:'center'});
+    doc.text(String(sd),cx+sub+sub/2,y+rowH/2+2,{align:'center'});
+    y+=rowH;
+  });
+}
+
+function exportPDF(){
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+    drawP1(doc);
+    doc.addPage('a4','landscape');drawP2(doc);
+    doc.addPage('a4','landscape');drawP3(doc);
+    doc.save('subpersonalidades.pdf');
+  }catch(err){console.error(err);}
+}
+
+loadLogo();
+</script>
+</body>
+</html>
