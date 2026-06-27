@@ -1,0 +1,171 @@
+/* ═══════════════════════════════════════════════
+   Herramientas Coaching — Shared Stylesheet
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --navy:       #2B3D4F;
+  --blue:       #B0C4DE;
+  --blue-mid:   #6B9AC4;
+  --blue-light: rgba(176,196,222,0.15);
+  --blue-tint:  rgba(107,154,196,0.12);
+  --text:       #333333;
+  --text-light: #666666;
+  --border:     #D3D1C7;
+  --gray:       #F3F4F6;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  background: #fff;
+  color: var(--text);
+}
+
+a { text-decoration: none; color: inherit; }
+
+/* ── Tool Page Header ─────────────────────────── */
+.tool-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  background: var(--gray);
+  border-bottom: 1px solid var(--border);
+  gap: 16px;
+}
+
+.hc-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.hc-logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.hc-logo-text .lt1 {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-light);
+}
+
+.hc-logo-text .lt2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.tool-header h2 {
+  flex: 1;
+  text-align: center;
+  font-size: clamp(20px, 2.8vw, 34px);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  background: linear-gradient(135deg, var(--navy), var(--blue-mid));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
+.ik-logo {
+  height: 34px;
+  flex-shrink: 0;
+  display: block;
+}
+
+/* ── Content Wrap ─────────────────────────────── */
+.wrap {
+  width: 100%;
+  padding: 1.5rem 2rem 4rem;
+}
+
+.wrap.narrow {
+  max-width: 60%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Progress Bar ─────────────────────────────── */
+.progress {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  height: 3px;
+  background: #f0f0f0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--navy), var(--blue-mid));
+  border-radius: 0 3px 3px 0;
+  transition: width 0.4s ease;
+}
+
+/* ── Shared Buttons ───────────────────────────── */
+.next, .next-btn, .dl-btn, .btn-p {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 999px;
+  background: var(--navy);
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.next:hover, .next-btn:hover, .dl-btn:hover, .btn-p:hover { opacity: 0.82; }
+
+.next:disabled, .next-btn:disabled { opacity: 0.4; cursor: default; }
+
+.download {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 12px 32px;
+  border: 1.5px solid var(--navy);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--navy);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.download:hover { opacity: 0.75; }
+
+/* ── Page Sections ────────────────────────────── */
+.page { display: none; margin-top: 40px; padding-top: 24px; border-top: 1px solid #e8e8e8; }
+.page.show { display: block; }
+
+.btnrow { margin-top: 24px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.nextwrap { margin-top: 24px; }
+
+/* ── Footer Note ──────────────────────────────── */
+.footer-note { font-size: 12px; color: var(--border); text-align: center; margin-top: 34px; }
+
+/* ── Common Table Headers ─────────────────────── */
+.t1 th, .t2 th, .t3 th, .tq th, .qt thead th {
+  background: var(--navy);
+  color: #fff;
+}
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 600px) {
+  .wrap { padding: 1rem 1rem 3rem; }
+  .tool-header { padding: 14px 16px; }
+  .hc-logo-text { display: none; }
+  .tool-header h2 { font-size: 16px; }
+  .ik-logo { height: 28px; }
+}
