@@ -62,6 +62,27 @@ a { text-decoration: none; color: inherit; }
   color: var(--navy);
 }
 
+.hc-logo-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  flex-shrink: 0;
+}
+
+.hc-by {
+  font-size: 10px;
+  font-weight: 400;
+  color: #8a8f96;
+  padding-left: 36px;   /* 26px icono + 10px gap → alinea bajo "Coaching" */
+  letter-spacing: 0.2px;
+  transition: color 0.2s;
+}
+.hc-by:hover {
+  color: var(--blue-mid);
+  text-decoration: underline;
+}
+
 .tool-header h2 {
   flex: 1;
   text-align: center;
@@ -165,7 +186,7 @@ a { text-decoration: none; color: inherit; }
 @media (max-width: 600px) {
   .wrap { padding: 1rem 1rem 3rem; }
   .tool-header { padding: 14px 16px; }
-  .hc-logo-text { display: none; }
+  .hc-logo-text, .hc-by { display: none; }
   .tool-header h2 { font-size: 16px; }
   .ik-logo { height: 28px; }
 }
