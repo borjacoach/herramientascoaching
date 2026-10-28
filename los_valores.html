@@ -100,7 +100,7 @@ select.csel.active{background:#2B3D4F;border-color:#2B3D4F;color:#fff;font-weigh
   </div>
 
   <div class="nextwrap">
-    <button class="next" onclick="goNext()">Siguiente</button>
+    <button class="next" onclick="nextPhase()">Siguiente</button>
     <span class="warn" id="warn">Selecciona y ordena tu TOP 3 en la columna C para continuar.</span>
   </div>
 
@@ -277,11 +277,25 @@ function updateRow(i){
   const c=document.getElementById('c'+i);if(c){c.disabled=!revealedC||!s.b;c.value=String(s.c);c.classList.toggle('active',s.c>0);}
 }
 function refreshAll(){for(let i=0;i<state.length;i++)updateRow(i);}
-function maybeReveal(){
-  let changed=false;
-  if(countA()>=10 && !revealedB){revealedB=true;const e=document.getElementById('stepB');e.classList.remove('hidden');e.classList.add('fade');changed=true;}
-  if(countB()>=6 && !revealedC){revealedC=true;const e=document.getElementById('stepC');e.classList.remove('hidden');e.classList.add('fade');changed=true;}
-  if(changed)refreshAll();
+// Las fases B y C ya no se revelan solas: se avanza con el botón Siguiente (nextPhase)
+function maybeReveal(){}
+function revealStep(w){
+  const e=document.getElementById('step'+w);e.classList.remove('hidden');e.classList.add('fade');
+  refreshAll();
+  setTimeout(()=>document.getElementById('stepA').scrollIntoView({behavior:'smooth',block:'start'}),60);
+}
+function showWarn(msg){const w=document.getElementById('warn');w.textContent=msg;w.style.display='inline';}
+function nextPhase(){
+  if(!revealedB){
+    if(countA()<10){showWarn('Selecciona 10 valores en la columna A para continuar.');flash('A');return;}
+    document.getElementById('warn').style.display='none';revealedB=true;revealStep('B');return;
+  }
+  if(!revealedC){
+    if(countB()<6){showWarn('Selecciona 6 valores en la columna B para continuar.');flash('B');return;}
+    document.getElementById('warn').style.display='none';revealedC=true;revealStep('C');return;
+  }
+  document.getElementById('warn').textContent='Selecciona y ordena tu TOP 3 en la columna C para continuar.';
+  goNext();
 }
 function updateCounters(){
   document.getElementById('ca').textContent=countA();
