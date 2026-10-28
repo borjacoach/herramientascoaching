@@ -128,7 +128,7 @@ function render(){
 document.getElementById('beliefInput').addEventListener('input',e=>{data[bk()]=e.target.value;});
 
 function openEdit(i,el){
-  if(editInfo!==null)saveEdit();
+  if(editInfo!==null){saveEdit();el=document.querySelector('.col-body[data-i="'+i+'"]')||el;}
   editInfo={i,key:tk()};
   const pop=document.getElementById('editPop'),ta=document.getElementById('editTA');
   ta.value=data.pillars[i][editInfo.key]||'';
@@ -144,7 +144,7 @@ function saveEdit(){
   data.pillars[editInfo.i][editInfo.key]=document.getElementById('editTA').value.trim();
   editInfo=null;document.getElementById('editPop').style.display='none';render();
 }
-document.addEventListener('mousedown',e=>{if(editInfo&&!document.getElementById('editPop').contains(e.target))saveEdit();});
+document.addEventListener('mousedown',e=>{if(editInfo&&!document.getElementById('editPop').contains(e.target)&&!e.target.closest('.col-body'))saveEdit();});
 document.getElementById('editTA').addEventListener('keydown',e=>{if(e.key==='Escape')saveEdit();});
 
 function switchTab(t){
@@ -310,11 +310,19 @@ hcLogoData=buildHCLogo();loadLogo();render();
      beliefInput es <input> y el núcleo lo guarda, pero solo para la pestaña activa;
      guardamos ambas creencias explícitamente para restaurar correctamente */
   HCStore.savers.push(function(){
-    if (typeof saveEdit === 'function') try{ saveEdit(); }catch(e){}
+    /* OJO: no llamar a saveEdit() aquí. El guardado se dispara en cada clic y cada tecla,
+       y saveEdit() cierra el editor → impedía escribir en los pilares.
+       Leemos el texto en curso del editor sin cerrarlo. */
+    if (typeof data === 'undefined') return {};
+    var pillars = JSON.parse(JSON.stringify(data.pillars));
+    if (typeof editInfo !== 'undefined' && editInfo && pillars[editInfo.i]) {
+      var ta = document.getElementById('editTA');
+      if (ta) pillars[editInfo.i][editInfo.key] = ta.value.trim();
+    }
     return {
-      limitBelief: (typeof data !== 'undefined') ? data.limitBelief : '',
-      impulseBelief: (typeof data !== 'undefined') ? data.impulseBelief : '',
-      pillars: (typeof data !== 'undefined') ? JSON.parse(JSON.stringify(data.pillars)) : null,
+      limitBelief: data.limitBelief,
+      impulseBelief: data.impulseBelief,
+      pillars: pillars,
       tab: (typeof tab !== 'undefined') ? tab : 'limit'
     };
   });
